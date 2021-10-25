@@ -10,6 +10,7 @@ add_compile_options(-Wall -Wextra)
 add_executable(
         Ants
         main.cpp
+        src/App.cpp
 )
 
 target_include_directories(Ants PUBLIC include)

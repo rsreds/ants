@@ -2,7 +2,9 @@
 // Created by Jacopo Gasparetto on 25/10/21.
 //
 
-int main() {
+#include <ants/App.hpp>
 
-    return 0;
+int main() {
+    App app;
+    return app.run();
 }
