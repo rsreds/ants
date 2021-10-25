@@ -1,3 +1,11 @@
+# CLion
+.idea/
+cmake-build-debug/
+cmake-build-release/
+
+# Mac
+.DS_Store
+
 # Prerequisites
 *.d
 
