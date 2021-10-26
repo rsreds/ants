@@ -7,5 +7,6 @@ sf::CircleShape Ant::makeShape() {
   auto antShape = sf::CircleShape(radius);
   antShape.setOrigin({radius, radius});
   antShape.setScale({3, 1});
+  antShape.setPosition({m_posX, m_posY});
   return antShape;
 }
