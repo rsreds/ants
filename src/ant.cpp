@@ -3,7 +3,7 @@
 Ant::Ant(sf::Vector2f pos) : m_pos(pos) {}
 
 sf::CircleShape Ant::makeShape() {
-  float radius = 3;
+  float radius = 1;
   auto antShape = sf::CircleShape(radius);
   antShape.setOrigin({radius, radius});
   antShape.setScale({3, 1});
