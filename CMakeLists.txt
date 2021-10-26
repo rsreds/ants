@@ -17,4 +17,6 @@ target_include_directories(Ants PUBLIC include)
 target_include_directories(Ants PRIVATE src)
 target_link_libraries(Ants sfml-graphics)
 
+# ---- TEST ----
+enable_testing()
 add_subdirectory(test)

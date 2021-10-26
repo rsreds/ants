@@ -9,7 +9,7 @@ In order to compile you need CMake and SFML 2.5 or greater
 brew install cmake sfml
 
 # Ubuntu
-sudo apt install cmake sfml
+sudo apt install cmake libsfml-dev
 ```
 
 ## Build and Run
