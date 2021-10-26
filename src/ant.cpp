@@ -1,5 +1,6 @@
 #include <ants/ant.hpp>
 
+namespace ants {
 Ant::Ant(sf::Vector2f pos) : m_pos(pos) {}
 
 sf::CircleShape Ant::makeShape() {
@@ -11,10 +12,7 @@ sf::CircleShape Ant::makeShape() {
   return antShape;
 }
 
-sf::Vector2f Ant::getPos() const{
-  return this->m_pos;
-}
+sf::Vector2f Ant::getPos() const { return this->m_pos; }
 
-void Ant::setPos(sf::Vector2f const& pos){
-  this->m_pos = pos;
-}
+void Ant::setPos(sf::Vector2f const &pos) { this->m_pos = pos; }
+} // namespace ants
