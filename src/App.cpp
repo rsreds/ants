@@ -5,45 +5,41 @@
 #include <ants/App.hpp>
 
 App::App(int screenWidth, int screenHeight)
-        : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants") {
-
-}
+    : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants") {}
 
 int App::run() {
+  if (!init()) return EXIT_FAILURE;
 
-    if (!init())
-        return EXIT_FAILURE;
-
-    while (m_window.isOpen()) {
-        while (m_window.pollEvent(m_event)) {
-            event();
-        }
-
-        loop();
-        render();
+  while (m_window.isOpen()) {
+    while (m_window.pollEvent(m_event)) {
+      event();
     }
 
-    cleanup();
-    return EXIT_SUCCESS;
+    loop();
+    render();
+  }
+
+  cleanup();
+  return EXIT_SUCCESS;
 }
 
 bool App::init() {
-    // Perform initial setup
-    return true;
+  // Perform initial setup
+  return true;
 }
 
 void App::event() {
-    // Handle events
-    switch (m_event.type) {
-        case sf::Event::Closed:
-            m_window.close();
-            break;
-        default:;
-    }
+  // Handle events
+  switch (m_event.type) {
+    case sf::Event::Closed:
+      m_window.close();
+      break;
+    default:;
+  }
 }
 
 void App::loop() {
-    // Update game logic
+  // Update game logic
 }
 
 void App::render() {
@@ -52,9 +48,7 @@ void App::render() {
     
     m_window.draw(test_ant.makeShape());
 
-    m_window.display();
+  m_window.display();
 }
 
-void App::cleanup() {
-
-}
+void App::cleanup() {}
