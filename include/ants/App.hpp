@@ -6,11 +6,13 @@
 #define ANTS_APP_H
 
 #include <SFML/Graphics.hpp>
+#include <ants/ant.hpp>
 
 class App {
 private:
     sf::Event m_event{};
     sf::RenderWindow m_window;
+    Ant test_ant{400, 300};
 
 public:
     explicit App(int screenWidth = 800, int screenHeight = 600);
