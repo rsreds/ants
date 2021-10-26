@@ -10,9 +10,9 @@
 
 class App {
  private:
-    sf::Event m_event{};
-    sf::RenderWindow m_window;
-    ants::Ant test_ant{{400, 300}};
+  sf::Event m_event{};
+  sf::RenderWindow m_window;
+  ants::Ant test_ant{{400, 300}};
 
  public:
   explicit App(int screenWidth = 800, int screenHeight = 600);

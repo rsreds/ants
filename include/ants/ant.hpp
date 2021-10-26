@@ -5,16 +5,16 @@
 
 namespace ants {
 class Ant {
-private:
+ private:
   sf::Vector2f m_pos;
 
-public:
+ public:
   Ant(sf::Vector2f pos);
   sf::CircleShape makeShape();
 
   sf::Vector2f getPos() const;
-  void setPos(sf::Vector2f const &pos);
+  void setPos(sf::Vector2f const& pos);
 };
-} // namespace ants
+}  // namespace ants
 
-#endif // MACRO
+#endif  // MACRO
