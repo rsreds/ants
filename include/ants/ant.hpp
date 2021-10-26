@@ -1,3 +1,8 @@
+#ifndef ANTS_ANT_H
+#define ANTS_ANT_H
+
+#include <SFML/Graphics.hpp>
+
 class Ant
 {
 private:
@@ -5,4 +10,8 @@ private:
   int m_posY;
 public:
   Ant(int posX, int posY);
+  sf::CircleShape makeShape();
 };
+
+#endif // MACRO
+

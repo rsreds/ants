@@ -44,7 +44,9 @@ void App::loop() {
 
 void App::render() {
   m_window.clear();
+  
   // Draw stuff here
+  m_window.draw(test_ant.makeShape());
 
   m_window.display();
 }
