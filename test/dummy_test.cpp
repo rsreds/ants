@@ -18,5 +18,5 @@ TEST_CASE("Test sum") {
 }
 
 TEST_CASE("Test sub") {
-    CHECK_EQ(sub(10, 7), 3);
+    CHECK_EQ(sub(7, 10), -3);
 }
