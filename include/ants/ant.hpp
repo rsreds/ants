@@ -10,6 +10,9 @@ private:
 public:
   Ant(sf::Vector2f pos);
   sf::CircleShape makeShape();
+  
+  sf::Vector2f getPos() const;
+  void setPos(sf::Vector2f const& pos);
 };
 
 #endif // MACRO
