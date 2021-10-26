@@ -11,6 +11,7 @@ add_executable(
         Ants
         main.cpp
         src/App.cpp
+        src/ant.cpp
 )
 
 target_include_directories(Ants PUBLIC include)
