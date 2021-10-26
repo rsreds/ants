@@ -10,3 +10,11 @@ sf::CircleShape Ant::makeShape() {
   antShape.setPosition(m_pos);
   return antShape;
 }
+
+sf::Vector2f Ant::getPos() const{
+  return this->m_pos;
+}
+
+void Ant::setPos(sf::Vector2f const& pos){
+  this->m_pos = pos;
+}
