@@ -6,10 +6,9 @@
 class Ant
 {
 private:
-  int m_posX;
-  int m_posY;
+  sf::Vector2f m_pos;
 public:
-  Ant(int posX, int posY);
+  Ant(sf::Vector2f pos);
   sf::CircleShape makeShape();
 };
 
