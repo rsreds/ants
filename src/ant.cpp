@@ -14,5 +14,5 @@ sf::CircleShape Ant::makeShape() {
 
 sf::Vector2f Ant::getPos() const { return this->m_pos; }
 
-void Ant::setPos(sf::Vector2f const &pos) { this->m_pos = pos; }
-} // namespace ants
+void Ant::setPos(sf::Vector2f const& pos) { this->m_pos = pos; }
+}  // namespace ants
