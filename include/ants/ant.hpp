@@ -3,17 +3,18 @@
 
 #include <SFML/Graphics.hpp>
 
-class Ant
-{
+namespace ants {
+class Ant {
 private:
   sf::Vector2f m_pos;
+
 public:
   Ant(sf::Vector2f pos);
   sf::CircleShape makeShape();
-  
+
   sf::Vector2f getPos() const;
-  void setPos(sf::Vector2f const& pos);
+  void setPos(sf::Vector2f const &pos);
 };
+} // namespace ants
 
 #endif // MACRO
-
