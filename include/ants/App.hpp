@@ -8,26 +8,25 @@
 #include <SFML/Graphics.hpp>
 
 class App {
-private:
-    sf::Event m_event{};
-    sf::RenderWindow m_window;
+ private:
+  sf::Event m_event{};
+  sf::RenderWindow m_window;
 
-public:
-    explicit App(int screenWidth = 800, int screenHeight = 600);
+ public:
+  explicit App(int screenWidth = 800, int screenHeight = 600);
 
-public:
-    int run();
+ public:
+  int run();
 
-    bool init();
+  bool init();
 
-    void event();
+  void event();
 
-    void loop();
+  void loop();
 
-    void render();
+  void render();
 
-    void cleanup();
+  void cleanup();
 };
 
-
-#endif //ANTS_APP_H
+#endif  // ANTS_APP_H
