@@ -3,18 +3,25 @@
 #include <ants/ant.hpp>
 
 namespace ants {
-Ant::Ant(sf::Vector2f pos) {
-  float radius = 3;
-  auto antShape = sf::CircleShape(radius);
-  antShape.setOrigin({radius, radius});
-  antShape.setScale({3, 1});
-  m_shape = antShape;
-  setPosition(pos);
-}
+Ant::Ant(sf::Vector2f pos) { setPosition(pos); }
 
 void Ant::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   states.transform *= getTransform();
-  target.draw(m_shape, states);
+  float radius = 3;
+  auto abdomenShape = sf::CircleShape(radius);
+  abdomenShape.setOrigin({radius, radius});
+  abdomenShape.setPosition({-1.5 * radius, 0.f});
+
+  auto thoraxShape = sf::CircleShape(radius * 0.7f);
+  thoraxShape.setOrigin({radius * 0.7f, radius * 0.7f});
+  thoraxShape.setScale({3, 0.7});
+
+  auto headShape = sf::CircleShape(radius * 0.8f);
+  headShape.setOrigin({radius * 0.8f, radius * 0.8f});
+  headShape.setPosition({1.5 * radius, 0.f});
+  target.draw(abdomenShape, states);
+  target.draw(thoraxShape, states);
+  target.draw(headShape, states);
 }
 
 sf::Vector2f Ant::getDirection() const { return m_direction; }
