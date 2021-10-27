@@ -30,8 +30,13 @@ float Ant::setSpeed() const { return m_speed; }
 void Ant::setDirection(sf::Vector2f const& dir) {
   auto newAngle = sf::rad2deg(std::atan2(m_direction.y, m_direction.x));
   setRotation(newAngle);
-  m_direction = dir;
+  m_direction = sf::normalizeCopy(dir);
 }
 void Ant::setSpeed(float const& spd) { m_speed = spd; }
+void Ant::move(float const& elapsedTime) {
+  sf::Vector2f velocity{m_direction};
+  sf::setMagnitude(velocity, m_speed);
+  setPosition(getPosition() + velocity * elapsedTime);
+}
 
 }  // namespace ants
