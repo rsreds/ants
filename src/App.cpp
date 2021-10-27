@@ -47,6 +47,8 @@ void App::render() {
 
   m_window.draw(test_ant.makeShape());
 
+  m_window.draw(test_ant.makeShape());
+
   m_window.display();
 }
 
