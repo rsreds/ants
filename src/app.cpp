@@ -1,12 +1,11 @@
-//
-// Created by Jacopo Gasparetto on 25/10/21.
-//
 
 #include <ants/app.hpp>
 
 App::App(int screenWidth, int screenHeight)
     : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants") {
   m_window.setVerticalSyncEnabled(true);
+
+  m_themeManager.applyTheme(GUI::Theme::Type::polar);
 }
 
 int App::run() {
@@ -27,7 +26,8 @@ int App::run() {
 
 bool App::init() {
   // Perform initial setup
-
+  m_themeManager.applyTheme(GUI::Theme::Type::polar);
+  test_ant.setFillColor(m_themeManager.antColor());
   return true;
 }
 
@@ -46,7 +46,7 @@ void App::loop() {
 }
 
 void App::render() {
-  m_window.clear();
+  m_window.clear(m_themeManager.backgroundColor());
 
   test_ant.setRotation(test_ant.getRotation() + 1);
   m_window.draw(test_ant);

@@ -10,6 +10,8 @@ Ant::Ant(sf::Vector2f pos) {
   setPosition(pos);
 }
 
+void Ant::setFillColor(const sf::Color& c) { m_shape.setFillColor(c); }
+
 void Ant::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   states.transform *= getTransform();
   target.draw(m_shape, states);
