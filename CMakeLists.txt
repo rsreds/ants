@@ -10,7 +10,7 @@ add_compile_options(-Wall -Wextra)
 add_executable(
         Ants
         main.cpp
-        src/App.cpp
+        src/app.cpp
         src/ant.cpp
 )
 
