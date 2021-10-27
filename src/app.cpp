@@ -2,10 +2,12 @@
 // Created by Jacopo Gasparetto on 25/10/21.
 //
 
-#include <ants/App.hpp>
+#include <ants/app.hpp>
 
 App::App(int screenWidth, int screenHeight)
-    : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants") {}
+    : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants") {
+  m_window.setVerticalSyncEnabled(true);
+}
 
 int App::run() {
   if (!init()) return EXIT_FAILURE;
