@@ -19,6 +19,7 @@ void Ant::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   auto headShape = sf::CircleShape(radius * 0.8f);
   headShape.setOrigin({radius * 0.8f, radius * 0.8f});
   headShape.setPosition({1.5f * radius, 0.f});
+
   target.draw(abdomenShape, states);
   target.draw(thoraxShape, states);
   target.draw(headShape, states);
