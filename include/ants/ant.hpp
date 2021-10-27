@@ -4,16 +4,13 @@
 #include <SFML/Graphics.hpp>
 
 namespace ants {
-class Ant {
+class Ant : public sf::Drawable, public sf::Transformable {
  private:
-  sf::Vector2f m_pos;
+  sf::CircleShape m_shape;
 
  public:
   Ant(sf::Vector2f pos);
-  sf::CircleShape makeShape();
-
-  sf::Vector2f getPos() const;
-  void setPos(sf::Vector2f const& pos);
+  virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };
 }  // namespace ants
 

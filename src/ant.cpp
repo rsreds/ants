@@ -1,18 +1,18 @@
 #include <ants/ant.hpp>
 
 namespace ants {
-Ant::Ant(sf::Vector2f pos) : m_pos(pos) {}
-
-sf::CircleShape Ant::makeShape() {
-  float radius = 1;
+Ant::Ant(sf::Vector2f pos) {
+  float radius = 3;
   auto antShape = sf::CircleShape(radius);
   antShape.setOrigin({radius, radius});
   antShape.setScale({3, 1});
-  antShape.setPosition(m_pos);
-  return antShape;
+  m_shape = antShape;
+  setPosition(pos);
 }
 
-sf::Vector2f Ant::getPos() const { return this->m_pos; }
+void Ant::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+  states.transform *= getTransform();
+  target.draw(m_shape, states);
+}
 
-void Ant::setPos(sf::Vector2f const& pos) { this->m_pos = pos; }
 }  // namespace ants
