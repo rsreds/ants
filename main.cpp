@@ -2,7 +2,7 @@
 // Created by Jacopo Gasparetto on 25/10/21.
 //
 
-#include <ants/App.hpp>
+#include <ants/app.hpp>
 
 int main() {
     App app;
