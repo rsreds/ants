@@ -3,7 +3,7 @@
 //
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "test/doctest.h"
+#include "doctest.h"
 
 int sum(int a, int b) {
     return a + b;
