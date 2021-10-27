@@ -1,5 +1,4 @@
 add_executable(test_dummy_algebra test_dummy.cpp)
-target_include_directories(test_dummy_algebra PRIVATE ..)
 add_test(DummyTest test_dummy_algebra)
 
 add_executable(test_vector2 test_vector2.cpp)
