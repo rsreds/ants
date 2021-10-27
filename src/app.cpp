@@ -16,7 +16,8 @@ int App::run() {
     while (m_window.pollEvent(m_event)) {
       event();
     }
-
+    elapsedTime = clock.getElapsedTime().asSeconds();
+    clock.restart();
     loop();
     render();
   }
@@ -47,6 +48,7 @@ void App::event() {
 
 void App::loop() {
   // Update game logic
+  test_ant.move(elapsedTime);
 }
 
 void App::render() {

@@ -12,6 +12,8 @@ class App {
  private:
   sf::Event m_event{};
   sf::RenderWindow m_window;
+  sf::Clock clock;
+  float elapsedTime;
   ants::Ant test_ant{{400, 300}};
 
  public:
