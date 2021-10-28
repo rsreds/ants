@@ -42,7 +42,7 @@ class ThemeManager {
 
       case Theme::Type::polarDark:
         m_theme = Polar::makeThemeDark();
-
+        break;
       default:;
     }
   }
