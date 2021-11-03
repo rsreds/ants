@@ -1,12 +1,9 @@
-//
-// Created by Jacopo Gasparetto on 25/10/21.
-//
-
 #ifndef ANTS_APP_H
 #define ANTS_APP_H
 
 #include <SFML/Graphics.hpp>
 #include <ants/ant.hpp>
+#include <gui/theme.hpp>
 
 class App {
  private:
@@ -15,6 +12,8 @@ class App {
   sf::Clock clock;
   float elapsedTime;
   ants::Ant test_ant{{400, 300}};
+
+  GUI::ThemeManager m_themeManager;
 
  public:
   explicit App(int screenWidth = 800, int screenHeight = 600);

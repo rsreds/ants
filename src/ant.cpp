@@ -5,6 +5,8 @@
 namespace ants {
 Ant::Ant(sf::Vector2f pos) { setPosition(pos); }
 
+void Ant::setFillColor(const sf::Color& c) { m_shape.setFillColor(c); }
+
 void Ant::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   states.transform *= getTransform();
   float radius = 3;
@@ -38,5 +40,4 @@ void Ant::move(float const& elapsedTime) {
   sf::setMagnitude(velocity, m_speed);
   setPosition(getPosition() + velocity * elapsedTime);
 }
-
 }  // namespace ants
