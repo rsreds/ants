@@ -15,7 +15,8 @@ int App::run() {
     while (m_window.pollEvent(m_event)) {
       event();
     }
-
+    elapsedTime = clock.getElapsedTime().asSeconds();
+    clock.restart();
     loop();
     render();
   }
@@ -37,18 +38,23 @@ void App::event() {
     case sf::Event::Closed:
       m_window.close();
       break;
+    case sf::Event::MouseMoved:
+      test_ant.setDirection(
+          static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)) -
+          test_ant.getPosition());
     default:;
   }
 }
 
 void App::loop() {
   // Update game logic
+  test_ant.move(elapsedTime);
 }
 
 void App::render() {
   m_window.clear(m_themeManager.backgroundColor());
 
-  test_ant.setRotation(test_ant.getRotation() + 1);
+  // test_ant.setRotation(test_ant.getRotation() + 1);
   m_window.draw(test_ant);
 
   m_window.display();
