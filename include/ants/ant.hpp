@@ -2,15 +2,20 @@
 #define ANTS_ANT_H
 
 #include <SFML/Graphics.hpp>
+#include <ants/marker.hpp>
 #include <gui/theme.hpp>
 
 namespace ants {
+
+enum AntState { leavingBase };
+
 class Ant : public sf::Drawable, public sf::Transformable {
  private:
   sf::CircleShape m_shape;
   float m_speed = 100;
   sf::Vector2f m_direction;
   sf::Color m_color;
+  AntState m_state = AntState::leavingBase;
 
  public:
   explicit Ant(sf::Vector2f pos);
@@ -21,7 +26,8 @@ class Ant : public sf::Drawable, public sf::Transformable {
   void setSpeed(float const& spd);
   void setFillColor(const sf::Color& c);
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+  void mark(std::vector<ants::Marker>& markers);
 };
 }  // namespace ants
 
-#endif  // MACRO
+#endif  // ANTS_ANT_H

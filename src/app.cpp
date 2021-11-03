@@ -1,5 +1,5 @@
-
 #include <ants/app.hpp>
+#include <iostream>
 
 App::App(int screenWidth, int screenHeight)
     : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants") {
@@ -49,12 +49,31 @@ void App::event() {
 void App::loop() {
   // Update game logic
   test_ant.move(elapsedTime);
+  std::cout << '\r' << "Markers " << m_markers.size() << std::flush;
+  for (auto it = m_markers.begin(); it != m_markers.end(); ++it) {
+    it->tickLife(elapsedTime);
+    if (it->getRemainingLife() <= 0) {
+      m_markers.erase(it);
+    }
+  }
+  test_ant.mark(m_markers);
 }
 
 void App::render() {
   m_window.clear(m_themeManager.backgroundColor());
 
-  // test_ant.setRotation(test_ant.getRotation() + 1);
+  sf::Image markersMap;
+  markersMap.create(m_window.getSize().x, m_window.getSize().y,
+                    sf::Color::Transparent);
+  for (auto& marker : m_markers) {
+    sf::Color color = sf::Color::Red;
+    color.a = marker.getRemainingLife();
+    markersMap.setPixel(marker.getPosition().x, marker.getPosition().y, color);
+  }
+  sf::Texture t;
+  t.loadFromImage(markersMap);
+  sf::Sprite s(t);
+  m_window.draw(s);
   m_window.draw(test_ant);
 
   m_window.display();
