@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <ants/ant.hpp>
+#include <ants/colony.hpp>
 #include <ants/marker.hpp>
 #include <gui/theme.hpp>
 
@@ -12,8 +13,8 @@ class App {
   sf::RenderWindow m_window;
   sf::Clock clock;
   float elapsedTime;
-  ants::Ant test_ant{{400, 300}};
   std::vector<ants::Marker> m_markers;
+  ants::Colony test_colony{{200, 150}, 10};
 
   GUI::ThemeManager m_themeManager;
 

@@ -28,7 +28,8 @@ int App::run() {
 bool App::init() {
   // Perform initial setup
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
-  test_ant.setFillColor(m_themeManager.antColor());
+  // test_ant.setFillColor(m_themeManager.antColor());
+  test_colony.spawn();
   return true;
 }
 
@@ -38,17 +39,22 @@ void App::event() {
     case sf::Event::Closed:
       m_window.close();
       break;
+
+    case sf::Event::MouseButtonReleased:
+      if (m_event.mouseButton.button == sf::Mouse::Left) test_colony.spawn();
+      break;
     case sf::Event::MouseMoved:
-      test_ant.setDirection(
-          static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)) -
-          test_ant.getPosition());
+      for (auto& ant : test_colony.m_ants) {
+        ant.setDirection(
+            static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)) -
+            ant.getPosition());
+      }
     default:;
   }
 }
 
 void App::loop() {
   // Update game logic
-  test_ant.move(elapsedTime);
   std::cout << '\r' << "Markers " << m_markers.size() << std::flush;
   for (auto it = m_markers.begin(); it != m_markers.end(); ++it) {
     it->tickLife(elapsedTime);
@@ -56,7 +62,10 @@ void App::loop() {
       m_markers.erase(it);
     }
   }
-  test_ant.mark(m_markers);
+  for (auto& ant : test_colony.m_ants) {
+    ant.move(elapsedTime);
+    ant.mark(m_markers);
+  }
 }
 
 void App::render() {
@@ -74,8 +83,10 @@ void App::render() {
   t.loadFromImage(markersMap);
   sf::Sprite s(t);
   m_window.draw(s);
-  m_window.draw(test_ant);
-
+  m_window.draw(test_colony.getAnthill());
+  for (auto& ant : test_colony.m_ants) {
+    m_window.draw(ant);
+  }
   m_window.display();
 }
 
