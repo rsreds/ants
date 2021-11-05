@@ -40,4 +40,14 @@ void Ant::move(float const& elapsedTime) {
   sf::setMagnitude(velocity, m_speed);
   setPosition(getPosition() + velocity * elapsedTime);
 }
+void Ant::mark(std::vector<ants::Marker>& markers) {
+  switch (m_state) {
+    case AntState::leavingBase:
+      markers.emplace_back(getPosition(), ants::MarkerType::ToBase);
+      break;
+
+    default:
+      break;
+  }
+}
 }  // namespace ants
