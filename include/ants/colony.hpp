@@ -15,6 +15,11 @@ class Colony {
   Colony(sf::Vector2f pos, size_t maxPopulation)
       : m_anthill(pos), m_maxPopulation(maxPopulation) {}
   Anthill getAnthill() const { return m_anthill; };
+  void spawn() {
+    if (m_ants.size() < m_maxPopulation) {
+      m_ants.emplace_back(m_anthill.getPosition();)
+    }
+  }
 };
 
 }  // namespace ants
