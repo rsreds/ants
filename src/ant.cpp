@@ -5,20 +5,23 @@
 namespace ants {
 Ant::Ant(sf::Vector2f pos) { setPosition(pos); }
 
-void Ant::setFillColor(const sf::Color& c) { m_shape.setFillColor(c); }
+void Ant::setFillColor(const sf::Color& c) { m_color = c; }
 
 void Ant::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   states.transform *= getTransform();
   float radius = 3;
   auto abdomenShape = sf::CircleShape(radius);
+  abdomenShape.setFillColor(m_color);
   abdomenShape.setOrigin({radius, radius});
   abdomenShape.setPosition({-1.5f * radius, 0.f});
 
   auto thoraxShape = sf::CircleShape(radius * 0.7f);
+  thoraxShape.setFillColor(m_color);
   thoraxShape.setOrigin({radius * 0.7f, radius * 0.7f});
   thoraxShape.setScale({3, 0.7});
 
   auto headShape = sf::CircleShape(radius * 0.8f);
+  headShape.setFillColor(m_color);
   headShape.setOrigin({radius * 0.8f, radius * 0.8f});
   headShape.setPosition({1.5f * radius, 0.f});
 
