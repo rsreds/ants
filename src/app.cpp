@@ -28,7 +28,8 @@ int App::run() {
 bool App::init() {
   // Perform initial setup
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
-  test_ant.setFillColor(m_themeManager.antColor());
+  // test_ant.setFillColor(m_themeManager.antColor());
+  test_colony.spawn();
   return true;
 }
 
@@ -38,25 +39,36 @@ void App::event() {
     case sf::Event::Closed:
       m_window.close();
       break;
+
+    case sf::Event::KeyReleased:
+      if (m_event.key.code == sf::Keyboard::S) test_colony.spawn();
+      break;
     case sf::Event::MouseMoved:
-      test_ant.setDirection(
-          static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)) -
-          test_ant.getPosition());
+      for (auto& ant : test_colony.m_ants) {
+        ant.setDirection(
+            static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)) -
+            ant.getPosition());
+      }
     default:;
   }
 }
 
 void App::loop() {
   // Update game logic
-  test_ant.move(elapsedTime);
+  for (auto& ant : test_colony.m_ants) {
+    ant.move(elapsedTime);
+  }
 }
 
 void App::render() {
   m_window.clear(m_themeManager.backgroundColor());
 
   // test_ant.setRotation(test_ant.getRotation() + 1);
-  m_window.draw(test_ant);
   m_window.draw(test_colony.getAnthill());
+
+  for (auto& ant : test_colony.m_ants) {
+    m_window.draw(ant);
+  }
   m_window.display();
 }
 

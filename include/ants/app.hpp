@@ -12,7 +12,6 @@ class App {
   sf::RenderWindow m_window;
   sf::Clock clock;
   float elapsedTime;
-  ants::Ant test_ant{{400, 300}};
   ants::Colony test_colony{{200, 150}, 10};
 
   GUI::ThemeManager m_themeManager;
