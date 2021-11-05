@@ -8,7 +8,7 @@ namespace ants {
 class Ant : public sf::Drawable, public sf::Transformable {
  private:
   float m_speed = 100;
-  sf::Vector2f m_direction{0.f, 0.f};
+  sf::Vector2f m_direction{1.f, 1.f};
   sf::Color m_color;
 
  public:
