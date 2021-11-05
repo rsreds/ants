@@ -40,8 +40,8 @@ void App::event() {
       m_window.close();
       break;
 
-    case sf::Event::KeyReleased:
-      if (m_event.key.code == sf::Keyboard::S) test_colony.spawn();
+    case sf::Event::MouseButtonReleased:
+      if (m_event.mouseButton.button == sf::Mouse::Left) test_colony.spawn();
       break;
     case sf::Event::MouseMoved:
       for (auto& ant : test_colony.m_ants) {
