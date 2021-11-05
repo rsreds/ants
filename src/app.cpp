@@ -56,7 +56,7 @@ void App::render() {
 
   // test_ant.setRotation(test_ant.getRotation() + 1);
   m_window.draw(test_ant);
-
+  m_window.draw(test_colony.getAnthill());
   m_window.display();
 }
 
