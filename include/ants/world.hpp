@@ -64,8 +64,6 @@ inline void World::updateAnt(Colony& colony, Ant& ant) {
     ant.setDirection(ant.getDirection() + randomDirection());
   else
     ant.setDirection(*strongestMarker);
-  std::cout << "\rPosition: " << ant.getDirection().x << ' '
-            << ant.getDirection().y << std::flush;
 }
 }  // namespace ants
 
