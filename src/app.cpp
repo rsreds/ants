@@ -78,7 +78,6 @@ void App::render() {
   sf::Sprite s(t);
   m_window.draw(s);
   for (auto& foodSource : m_world.getFoodSources()) {
-    std::cout << "printed food source";
     foodSource.setFillColor(m_themeManager.foodColor());
     m_window.draw(foodSource);
   }
