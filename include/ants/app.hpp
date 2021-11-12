@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <ants/ant.hpp>
 #include <ants/colony.hpp>
+#include <ants/food.hpp>
 #include <ants/marker.hpp>
 #include <gui/theme.hpp>
 
@@ -15,6 +16,7 @@ class App {
   float elapsedTime;
   std::vector<ants::Marker> m_markers;
   ants::Colony test_colony{{200, 150}, 10};
+  ants::FoodSource test_foodSource{100, {300, 300}};
 
   GUI::ThemeManager m_themeManager;
 

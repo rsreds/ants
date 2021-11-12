@@ -83,6 +83,8 @@ void App::render() {
   t.loadFromImage(markersMap);
   sf::Sprite s(t);
   m_window.draw(s);
+  test_foodSource.setFillColor(m_themeManager.foodColor());
+  m_window.draw(test_foodSource);
   m_window.draw(test_colony.getAnthill());
   for (auto& ant : test_colony.m_ants) {
     m_window.draw(ant);
