@@ -29,7 +29,9 @@ bool App::init() {
   // Perform initial setup
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
   // test_ant.setFillColor(m_themeManager.antColor());
-  test_colony.spawn();
+  for (auto& colony : m_world.getColonies()) {
+    colony.spawn();
+  }
   return true;
 }
 
@@ -45,17 +47,19 @@ void App::event() {
 
 void App::loop() {
   // Update game logic
-  for (auto it = m_markers.begin(); it != m_markers.end(); ++it) {
+  for (auto it = m_world.getMarkers().begin(); it != m_world.getMarkers().end();
+       ++it) {
     it->tickLife(elapsedTime);
     if (it->getRemainingLife() <= 0) {
-      m_markers.erase(it);
+      m_world.getMarkers().erase(it);
     }
   }
-  for (auto& ant : test_colony.m_ants) {
-    ant.update(m_markers);
-    ant.move(elapsedTime);
-    ant.mark(m_markers);
-  }
+  for (auto& colony : m_world.getColonies())
+    for (auto& ant : colony.m_ants) {
+      m_world.updateAnt(colony, ant);
+      ant.move(elapsedTime);
+      ant.mark(m_world.getMarkers());
+    }
 }
 
 void App::render() {
@@ -64,7 +68,7 @@ void App::render() {
   sf::Image markersMap;
   markersMap.create(m_window.getSize().x, m_window.getSize().y,
                     sf::Color::Transparent);
-  for (auto& marker : m_markers) {
+  for (auto& marker : m_world.getMarkers()) {
     sf::Color color = sf::Color::Red;
     color.a = marker.getRemainingLife();
     markersMap.setPixel(marker.getPosition().x, marker.getPosition().y, color);
@@ -73,11 +77,16 @@ void App::render() {
   t.loadFromImage(markersMap);
   sf::Sprite s(t);
   m_window.draw(s);
-  test_foodSource.setFillColor(m_themeManager.foodColor());
-  m_window.draw(test_foodSource);
-  m_window.draw(test_colony.getAnthill());
-  for (auto& ant : test_colony.m_ants) {
-    m_window.draw(ant);
+  for (auto& foodSource : m_world.getFoodSources()) {
+    std::cout << "printed food source";
+    foodSource.setFillColor(m_themeManager.foodColor());
+    m_window.draw(foodSource);
+  }
+  for (auto& colony : m_world.getColonies()) {
+    m_window.draw(colony.getAnthill());
+    for (auto& ant : colony.m_ants) {
+      m_window.draw(ant);
+    }
   }
   m_window.display();
 }
