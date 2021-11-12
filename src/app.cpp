@@ -39,23 +39,12 @@ void App::event() {
     case sf::Event::Closed:
       m_window.close();
       break;
-
-    case sf::Event::MouseButtonReleased:
-      if (m_event.mouseButton.button == sf::Mouse::Left) test_colony.spawn();
-      break;
-    case sf::Event::MouseMoved:
-      for (auto& ant : test_colony.m_ants) {
-        ant.setDirection(
-            static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)) -
-            ant.getPosition());
-      }
     default:;
   }
 }
 
 void App::loop() {
   // Update game logic
-  std::cout << '\r' << "Markers " << m_markers.size() << std::flush;
   for (auto it = m_markers.begin(); it != m_markers.end(); ++it) {
     it->tickLife(elapsedTime);
     if (it->getRemainingLife() <= 0) {
@@ -63,6 +52,7 @@ void App::loop() {
     }
   }
   for (auto& ant : test_colony.m_ants) {
+    ant.update(m_markers);
     ant.move(elapsedTime);
     ant.mark(m_markers);
   }
