@@ -32,7 +32,9 @@ void Ant::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 sf::Vector2f Ant::getDirection() const { return m_direction; }
-float Ant::setSpeed() const { return m_speed; }
+AntState Ant::getState() const { return m_state; }
+float Ant::getSpeed() const { return m_speed; }
+void Ant::setState(AntState const& state) { m_state = state; }
 void Ant::setDirection(sf::Vector2f const& dir) {
   auto newAngle = sf::rad2deg(std::atan2(m_direction.y, m_direction.x));
   setRotation(newAngle);
@@ -48,6 +50,7 @@ void Ant::move(float const& elapsedTime) {
   sf::setMagnitude(velocity, m_speed);
   setPosition(getPosition() + velocity * elapsedTime);
 }
+
 void Ant::mark(std::vector<ants::Marker>& markers) {
   switch (m_state) {
     case AntState::leavingAnthill:
@@ -58,29 +61,4 @@ void Ant::mark(std::vector<ants::Marker>& markers) {
       break;
   }
 }
-
-sf::Vector2f randomDirection() {
-  std::random_device r;
-  std::default_random_engine e1(r());
-  std::uniform_real_distribution<float> uniform_dist(-0.5, 0.5);
-  float r1 = uniform_dist(e1);
-  float r2 = uniform_dist(e1);
-  return {r1, r2};
-}
-void Ant::update(std::vector<ants::Marker>& markers) {
-  switch (m_state) {
-    case returningAnthill: {
-      ants::Marker strongestMarker =
-          findStrogestAdjacent(getPosition(), toBase, markers);
-      setDirection(strongestMarker);
-      break;
-    }
-    case leavingAnthill: {
-      setDirection(getDirection() + randomDirection());
-      std::cout << "\rPosition: " << getDirection().x << ' ' << getDirection().y
-                << std::flush;
-    } break;
-  }
-}
-
 }  // namespace ants

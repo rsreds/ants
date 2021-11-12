@@ -2,10 +2,7 @@
 #define ANTS_APP_H
 
 #include <SFML/Graphics.hpp>
-#include <ants/ant.hpp>
-#include <ants/colony.hpp>
-#include <ants/food.hpp>
-#include <ants/marker.hpp>
+#include <ants/world.hpp>
 #include <gui/theme.hpp>
 
 class App {
@@ -14,9 +11,7 @@ class App {
   sf::RenderWindow m_window;
   sf::Clock clock;
   float elapsedTime;
-  std::vector<ants::Marker> m_markers;
-  ants::Colony test_colony{{200, 150}, 10};
-  ants::FoodSource test_foodSource{100, {300, 300}};
+  ants::World m_world;
 
   GUI::ThemeManager m_themeManager;
 

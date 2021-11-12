@@ -30,18 +30,22 @@ inline void Marker::tickLife(float const& elapsedTime) {
 }
 
 inline float Marker::getRemainingLife() const { return m_remainingLife; }
+
 inline MarkerType Marker::getType() const { return m_type; }
-inline Marker const& findStrogestAdjacent(sf::Vector2f pos, MarkerType type,
-                                          std::vector<ants::Marker>& markers) {
-  auto bestMarker = markers.begin();
-  for (auto it = markers.begin(); it < markers.end(); ++it) {
-    if (sf::distanceBetween(it->getPosition(), pos) <= 1.f &&
-        it->getType() == type)
-      bestMarker = bestMarker->getRemainingLife() < it->getRemainingLife()
-                       ? it
-                       : bestMarker;
-  }
-  return *bestMarker;
+
+inline std::vector<Marker>::iterator findStrogestAdjacent(
+    sf::Vector2f pos, MarkerType targetMarker, std::vector<Marker>& markers) {
+  std::vector<Marker> adjacentMarkers;
+  std::copy_if(markers.begin(), markers.end(), adjacentMarkers.begin(),
+               [=](Marker& m) {
+                 return m.getType() == targetMarker &&
+                        sf::distanceBetween(m.getPosition(), pos) < 1;
+               });
+  if (adjacentMarkers.size() == 0) return markers.end();
+  return std::max_element(adjacentMarkers.begin(), adjacentMarkers.end(),
+                          [](Marker& a, Marker& b) {
+                            return a.getRemainingLife() < b.getRemainingLife();
+                          });
 };
 }  // namespace ants
 
