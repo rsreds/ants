@@ -32,6 +32,11 @@ bool App::init() {
   for (auto& colony : m_world.getColonies()) {
     colony.spawn();
   }
+
+  for (auto& foodSource : m_world.getFoodSources()) {
+    foodSource.setFillColor(m_themeManager.foodColor());
+  }
+
   return true;
 }
 
@@ -47,13 +52,17 @@ void App::event() {
 
 void App::loop() {
   // Update game logic
-  for (auto it = m_world.getMarkers().begin(); it != m_world.getMarkers().end();
-       ++it) {
-    it->tickLife(elapsedTime);
-    if (it->getRemainingLife() <= 0) {
-      m_world.getMarkers().erase(it);
-    }
+  for (auto& it : m_world.getMarkers()) {
+    it.tickLife(elapsedTime);
   }
+
+  // Workaround to fix segfault erasing last element
+  m_world.getMarkers().erase(
+      std::remove_if(
+          m_world.getMarkers().begin(), m_world.getMarkers().end(),
+          [](const ants::Marker& m) { return m.getRemainingLife() <= 0; }),
+      m_world.getMarkers().end());
+
   for (auto& colony : m_world.getColonies())
     for (auto& ant : colony.m_ants) {
       m_world.updateAnt(colony, ant);
@@ -65,22 +74,28 @@ void App::loop() {
 void App::render() {
   m_window.clear(m_themeManager.backgroundColor());
 
+  // Draw markers
   sf::Image markersMap;
   markersMap.create(m_window.getSize().x, m_window.getSize().y,
                     sf::Color::Transparent);
+
   for (auto& marker : m_world.getMarkers()) {
     sf::Color color = sf::Color::Red;
     color.a = marker.getRemainingLife();
     markersMap.setPixel(marker.getPosition().x, marker.getPosition().y, color);
   }
+
   sf::Texture t;
   t.loadFromImage(markersMap);
   sf::Sprite s(t);
   m_window.draw(s);
+
+  // Draw Food
   for (auto& foodSource : m_world.getFoodSources()) {
-    foodSource.setFillColor(m_themeManager.foodColor());
     m_window.draw(foodSource);
   }
+
+  // Draw ants
   for (auto& colony : m_world.getColonies()) {
     m_window.draw(colony.getAnthill());
     for (auto& ant : colony.m_ants) {
