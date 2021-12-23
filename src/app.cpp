@@ -66,7 +66,7 @@ void App::loop() {
   for (auto& colony : m_world.getColonies())
     for (auto& ant : colony.m_ants) {
       m_world.updateAnt(colony, ant);
-      ant.move(elapsedTime);
+      ant.move(elapsedTime, m_window.getSize());
       ant.mark(m_world.getMarkers());
     }
 }
