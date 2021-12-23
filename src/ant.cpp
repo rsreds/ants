@@ -46,13 +46,13 @@ void Ant::setDirection(Marker const& marker) {
 
 void Ant::setSpeed(float const& spd) { m_speed = spd; }
 
-void Ant::move(float const& elapsedTime, sf::Vector2u const& bounds) {
+void Ant::updatePosition(float const& elapsedTime, sf::Vector2u const& bounds) {
   sf::Vector2f velocity{m_direction};
 
   auto x = getPosition().x;
   auto y = getPosition().y;
 
-  float turnFactor = 1; // With value less than 1 the ant tunnels the walls
+  float turnFactor = 0.75; // With value less than 1 the ant tunnels the walls
   float margin = 10.f;
 
   if (x <= margin)
@@ -66,7 +66,8 @@ void Ant::move(float const& elapsedTime, sf::Vector2u const& bounds) {
     velocity.y -= turnFactor;
 
   sf::setMagnitude(velocity, m_speed);
-  setPosition(getPosition() + velocity * elapsedTime);
+//  setPosition(getPosition() + velocity * elapsedTime);
+  move(velocity * elapsedTime);
 
 }
 
