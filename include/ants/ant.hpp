@@ -18,7 +18,7 @@ class Ant : public sf::Drawable, public sf::Transformable {
 
  public:
   explicit Ant(sf::Vector2f pos);
-  void move(float const& elapsedTime);
+  void move(float const& elapsedTime, sf::Vector2u const& bounds);
   sf::Vector2f getDirection() const;
   AntState getState() const;
   float getSpeed() const;
