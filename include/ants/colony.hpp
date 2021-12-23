@@ -17,6 +17,8 @@ class Colony {
     m_ants.reserve(m_maxPopulation);
   }
   Anthill getAnthill() const { return m_anthill; };
+
+  // Each call to this function generates a single ant to the colony
   void spawn() {
     if (m_ants.size() < m_maxPopulation) {
       m_ants.emplace_back(m_anthill.getPosition());
