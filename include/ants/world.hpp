@@ -59,7 +59,7 @@ inline void World::updateAnt(Colony& colony, Ant& ant) {
     }
   }
   auto strongestMarker =
-      findStrogestAdjacent(ant.getPosition(), targetMarker, m_markers);
+      findStrongestAdjacent(ant.getPosition(), targetMarker, m_markers);
   if (strongestMarker == m_markers.end())
     ant.setDirection(ant.getDirection() + randomDirection());
   else
