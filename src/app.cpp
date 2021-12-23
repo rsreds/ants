@@ -30,7 +30,7 @@ bool App::init() {
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
   // test_ant.setFillColor(m_themeManager.antColor());
   for (auto& colony : m_world.getColonies()) {
-    colony.spawn();
+    for (int i = 0; i < 2; ++i) colony.spawn();
   }
 
   for (auto& foodSource : m_world.getFoodSources()) {
@@ -66,7 +66,7 @@ void App::loop() {
   for (auto& colony : m_world.getColonies())
     for (auto& ant : colony.m_ants) {
       m_world.updateAnt(colony, ant);
-      ant.move(elapsedTime, m_window.getSize());
+      ant.updatePosition(elapsedTime, m_window.getSize());
       ant.mark(m_world.getMarkers());
     }
 }
@@ -80,9 +80,17 @@ void App::render() {
                     sf::Color::Transparent);
 
   for (auto& marker : m_world.getMarkers()) {
+    auto xPos = static_cast<int>(marker.getPosition().x);
+    auto yPos = static_cast<int>(marker.getPosition().y);
+
+    // If marker is outside visible window don't draw it
+    if (xPos <= 0 || xPos >= (int)m_window.getSize().x || yPos <= 0 ||
+        yPos >= (int)m_window.getSize().y) continue;
+
     sf::Color color = sf::Color::Red;
-    color.a = marker.getRemainingLife();
-    markersMap.setPixel(marker.getPosition().x, marker.getPosition().y, color);
+    assert(marker.getRemainingLife() >= 0);
+    color.a = static_cast<uint8_t>(marker.getRemainingLife());
+    markersMap.setPixel(xPos, yPos, color);
   }
 
   sf::Texture t;
@@ -105,4 +113,4 @@ void App::render() {
   m_window.display();
 }
 
-void App::cleanup() {}
+void App::cleanup() { m_world.getMarkers().clear(); }
