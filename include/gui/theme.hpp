@@ -9,6 +9,7 @@ namespace GUI {
 struct Theme {
   sf::Color backgroundColor;
   sf::Color antColor;
+  sf::Color foodColor;
 
   enum Type { polar, polarDark };
 };
@@ -32,6 +33,7 @@ class ThemeManager {
   }
 
   [[nodiscard]] sf::Color antColor() const { return m_theme.antColor; };
+  [[nodiscard]] sf::Color foodColor() const { return m_theme.foodColor; };
 
   // Helpers
   void applyTheme(Theme::Type type) {
@@ -73,6 +75,7 @@ inline Theme makeTheme() {
   Theme t;
   t.backgroundColor = Polar::Color::nord4;
   t.antColor = Polar::Color::nord0;
+  t.foodColor = Polar::Color::nord14;
   return t;
 }
 
@@ -80,6 +83,7 @@ inline Theme makeThemeDark() {
   Theme t;
   t.backgroundColor = Polar::Color::nord0;
   t.antColor = Polar::Color::nord4;
+  t.foodColor = Polar::Color::nord14;
   return t;
 }
 
