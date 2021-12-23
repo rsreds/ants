@@ -80,6 +80,7 @@ void App::render() {
                     sf::Color::Transparent);
 
   for (auto& marker : m_world.getMarkers()) {
+    assert(marker.getRemainingLife() >= 0);
     auto xPos = static_cast<int>(marker.getPosition().x);
     auto yPos = static_cast<int>(marker.getPosition().y);
 
@@ -88,7 +89,6 @@ void App::render() {
         yPos >= (int)m_window.getSize().y) continue;
 
     sf::Color color = sf::Color::Red;
-    assert(marker.getRemainingLife() >= 0);
     color.a = static_cast<uint8_t>(marker.getRemainingLife());
     markersMap.setPixel(xPos, yPos, color);
   }

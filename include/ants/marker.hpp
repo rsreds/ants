@@ -33,7 +33,8 @@ inline float Marker::getRemainingLife() const { return m_remainingLife; }
 
 inline MarkerType Marker::getType() const { return m_type; }
 
-inline std::vector<Marker>::iterator findStrongestAdjacent(sf::Vector2f pos, MarkerType targetMarker, std::vector<Marker>& markers) {
+inline std::vector<Marker>::iterator findStrongestAdjacent(
+    sf::Vector2f pos, MarkerType targetMarker, std::vector<Marker>& markers) {
   std::vector<Marker> adjacentMarkers;
 
   auto condition = [&](Marker& m) {
@@ -41,7 +42,8 @@ inline std::vector<Marker>::iterator findStrongestAdjacent(sf::Vector2f pos, Mar
     return m.getType() == targetMarker && d < 1;
   };
 
-  std::copy_if(markers.begin(), markers.end(), std::back_inserter(adjacentMarkers), condition);
+  std::copy_if(markers.begin(), markers.end(),
+               std::back_inserter(adjacentMarkers), condition);
 
   if (adjacentMarkers.empty()) return markers.end();
 
