@@ -38,6 +38,7 @@ inline sf::Vector2f randomDirection() {
 inline void World::updateAnt(Colony& colony, Ant& ant) {
   AntState currentState = ant.getState();
   MarkerType targetMarker = MarkerType::toFood;
+
   switch (currentState) {
     case AntState::returningAnthill: {
       if (colony.getAnthill().getGlobalBounds().contains(ant.getPosition())) {
