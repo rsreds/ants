@@ -2,7 +2,8 @@
 #include <iostream>
 
 App::App(int screenWidth, int screenHeight)
-    : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants") {
+    : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants"),
+      m_world{{screenWidth, screenHeight}}{
   m_window.setVerticalSyncEnabled(true);
 
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
@@ -30,7 +31,7 @@ bool App::init() {
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
   // test_ant.setFillColor(m_themeManager.antColor());
   for (auto& colony : m_world.getColonies()) {
-    for (int i = 0; i < 2; ++i) colony.spawn();
+    for (int i = 0; i < 200; ++i) colony.spawn();
   }
 
   for (auto& foodSource : m_world.getFoodSources()) {
