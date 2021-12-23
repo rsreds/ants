@@ -15,7 +15,7 @@ class Marker : public sf::Transformable {
   float m_remainingLife;
 
  public:
-  Marker() : m_remainingLife(0){};
+  Marker() : m_type{}, m_remainingLife(0){};
   Marker(sf::Vector2f pos, MarkerType type, float remainingLife = 100.f)
       : m_type(type), m_remainingLife(remainingLife) {
     setPosition(pos);
