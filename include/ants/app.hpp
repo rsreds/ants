@@ -2,7 +2,7 @@
 #define ANTS_APP_H
 
 #include <SFML/Graphics.hpp>
-#include <ants/ant.hpp>
+#include <ants/world.hpp>
 #include <gui/theme.hpp>
 
 class App {
@@ -11,7 +11,7 @@ class App {
   sf::RenderWindow m_window;
   sf::Clock clock;
   float elapsedTime;
-  ants::Ant test_ant{{400, 300}};
+  ants::World m_world;
 
   GUI::ThemeManager m_themeManager;
 

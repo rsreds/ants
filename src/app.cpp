@@ -1,5 +1,5 @@
-
 #include <ants/app.hpp>
+#include <iostream>
 
 App::App(int screenWidth, int screenHeight)
     : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants") {
@@ -28,7 +28,15 @@ int App::run() {
 bool App::init() {
   // Perform initial setup
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
-  test_ant.setFillColor(m_themeManager.antColor());
+  // test_ant.setFillColor(m_themeManager.antColor());
+  for (auto& colony : m_world.getColonies()) {
+    colony.spawn();
+  }
+
+  for (auto& foodSource : m_world.getFoodSources()) {
+    foodSource.setFillColor(m_themeManager.foodColor());
+  }
+
   return true;
 }
 
@@ -38,25 +46,62 @@ void App::event() {
     case sf::Event::Closed:
       m_window.close();
       break;
-    case sf::Event::MouseMoved:
-      test_ant.setDirection(
-          static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)) -
-          test_ant.getPosition());
     default:;
   }
 }
 
 void App::loop() {
   // Update game logic
-  test_ant.move(elapsedTime);
+  for (auto& it : m_world.getMarkers()) {
+    it.tickLife(elapsedTime);
+  }
+
+  // Workaround to fix segfault erasing last element
+  m_world.getMarkers().erase(
+      std::remove_if(
+          m_world.getMarkers().begin(), m_world.getMarkers().end(),
+          [](const ants::Marker& m) { return m.getRemainingLife() <= 0; }),
+      m_world.getMarkers().end());
+
+  for (auto& colony : m_world.getColonies())
+    for (auto& ant : colony.m_ants) {
+      m_world.updateAnt(colony, ant);
+      ant.move(elapsedTime);
+      ant.mark(m_world.getMarkers());
+    }
 }
 
 void App::render() {
   m_window.clear(m_themeManager.backgroundColor());
 
-  // test_ant.setRotation(test_ant.getRotation() + 1);
-  m_window.draw(test_ant);
+  // Draw markers
+  sf::Image markersMap;
+  markersMap.create(m_window.getSize().x, m_window.getSize().y,
+                    sf::Color::Transparent);
 
+  for (auto& marker : m_world.getMarkers()) {
+    sf::Color color = sf::Color::Red;
+    color.a = marker.getRemainingLife();
+    markersMap.setPixel(marker.getPosition().x, marker.getPosition().y, color);
+  }
+
+  sf::Texture t;
+  t.loadFromImage(markersMap);
+  sf::Sprite s(t);
+  m_window.draw(s);
+
+  // Draw Food
+  for (auto& foodSource : m_world.getFoodSources()) {
+    m_window.draw(foodSource);
+  }
+
+  // Draw ants
+  for (auto& colony : m_world.getColonies()) {
+    m_window.draw(colony.getAnthill());
+    for (auto& ant : colony.m_ants) {
+      m_window.draw(ant);
+    }
+  }
   m_window.display();
 }
 
