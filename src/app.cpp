@@ -31,7 +31,7 @@ bool App::init() {
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
   // test_ant.setFillColor(m_themeManager.antColor());
   for (auto& colony : m_world.getColonies()) {
-    for (int i = 0; i < 200; ++i) colony.spawn();
+    for (int i = 0; i < 20; ++i) colony.spawn();
   }
 
   for (auto& foodSource : m_world.getFoodSources()) {
