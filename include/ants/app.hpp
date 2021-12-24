@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <ants/world.hpp>
 #include <gui/theme.hpp>
+#include <cassert>
 
 class App {
  private:
