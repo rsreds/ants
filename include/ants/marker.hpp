@@ -4,10 +4,13 @@
 #include <vector2/vector2.h>
 
 #include <SFML/Graphics.hpp>
+#include <array>
+#include <iostream>
 
 namespace ants {
 
-enum MarkerType { toBase, toFood };
+// Keep SIZE as last element to compute how big the enum is
+enum MarkerType { toBase, toFood, SIZE };
 
 class Marker : public sf::Transformable {
  private:
@@ -51,7 +54,51 @@ inline std::vector<Marker>::iterator findStrongestAdjacent(
                           [](Marker& a, Marker& b) {
                             return a.getRemainingLife() < b.getRemainingLife();
                           });
-}
+};
+
+template <size_t M, size_t N>
+using Map_t = std::array<std::array<int, M>, N>;
+template <size_t Size>
+using AllMarkers_t = std::array<std::array<int, Size>, MarkerType::SIZE>;
+
+template <size_t M, size_t N>
+class Heatmap {
+ private:
+  Map_t<M, N> m_map{};  // rows x cols
+  float m_dw;           // Box's width
+  float m_dh;           // Box's height
+
+ public:
+  explicit Heatmap(sf::Vector2i const& windowSize)
+      : m_dw{static_cast<float>(windowSize.x) / M},
+        m_dh{static_cast<float>(windowSize.y) / N} {}
+
+  void printHeatMap() const {
+    for (auto x : m_map) {
+      for (auto y : x) {
+        std::cout << y << ' ';
+      }
+      std::cout << '\n';
+    }
+  }
+
+  inline void incrementByOneAt(sf::Vector2f position) {
+    assert(position.x >= 0 && position.y >= 0);
+    int i = std::floor(position.x / m_dw);
+    int j = std::floor(position.y / m_dh);
+    m_map.at(i).at(j) += 1;
+  }
+
+  inline void decrementByOneAt(sf::Vector2f position) {
+    assert(position.x >= 0 && position.y >= 0);
+    int i = std::floor(position.x / m_dw);
+    int j = std::floor(position.y / m_dh);
+    if (m_map.at(i).at(j) > 0)
+      m_map.at(i).at(j) -= 1;
+  }
+
+  [[nodiscard]] int getValueAtIndex(int i, int j) const { return m_map.at(i).at(j); }
+};
 }  // namespace ants
 
 #endif  // ANTS_MARKER_H
