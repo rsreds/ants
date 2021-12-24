@@ -66,7 +66,7 @@ inline void World::updateAnt(Colony& colony, Ant& ant) {
   auto x = ant.getPosition().x;
   auto y = ant.getPosition().y;
 
-  float turnFactor = 0.05; // With value less than 1 the ant tunnels the walls
+  float turnFactor = 0.05;
   float margin = 25.f;
   auto currentDirection = ant.getDirection();
 
