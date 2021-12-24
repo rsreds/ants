@@ -106,7 +106,7 @@ inline void World::updateMarkers(float elapsedTime) {
                                  }),
                   m_markers.end());
 
-  m_heatMap.printHeatMap();
+  m_heatMap.print();
 }
 
 inline void World::checkBounds(Ant& ant) const {

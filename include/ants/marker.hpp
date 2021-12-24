@@ -6,8 +6,8 @@
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <cassert>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 namespace ants {
 
@@ -67,6 +67,17 @@ struct HeatmapIndex {
   size_t row;
 };
 
+template <size_t COLS, size_t ROWS>
+void printMap(const Map_t<COLS, ROWS>& map) {
+  for (auto row : map) {
+    for (auto el : row) {
+      std::cout <<  std::setfill(' ') << std::setw(3) << el << ' ';
+    }
+    std::cout << '\n';
+  }
+  std::cout << '\n';
+}
+
 /**
  * Static 2D Container (a.k.a 2D fixed array)
  * @tparam COLS Number of columns
@@ -83,17 +94,10 @@ class Heatmap {
    * Initialize Heatmap
    * @param windowSize Screen windows size to compute columns and rows sizes
    */
-  explicit Heatmap(sf::Vector2i const& windowSize)
-      : m_windowSize{windowSize} {}
+  explicit Heatmap(sf::Vector2i const& windowSize) : m_windowSize{windowSize} {}
 
-  void printHeatMap() const {
-    for (auto row : m_map) {
-      for (auto el : row) {
-        std::cout <<  std::setfill(' ') << std::setw(3) << el << ' ';
-      }
-      std::cout << '\n';
-    }
-    std::cout << '\n';
+  void print() const {
+    printMap(m_map);
   }
 
   /**
@@ -102,15 +106,16 @@ class Heatmap {
    * @return HeatmapIndex
    */
   inline HeatmapIndex getIndexFromPosition(sf::Vector2f const& position) {
-    assert(position.x >= 0 && position.x <= m_windowSize.x &&
-           position.y >= 0 && position.y <= m_windowSize.y);
+    assert(position.x >= 0 && position.x <= m_windowSize.x && position.y >= 0 &&
+           position.y <= m_windowSize.y);
     size_t col = std::floor(position.x / m_windowSize.x * COLS);
     size_t row = std::floor(position.y / m_windowSize.y * ROWS);
     return {col, row};
   }
 
   /**
-   * Increment by one the value at the corresponding element in world coordinates
+   * Increment by one the value at the corresponding element in world
+   * coordinates
    * @param position World position in pixel
    */
   inline void incrementByOneAt(sf::Vector2f const& position) {
@@ -119,10 +124,11 @@ class Heatmap {
   }
 
   /**
-   * Decrement by one the value at the corresponding element in world coordinates
+   * Decrement by one the value at the corresponding element in world
+   * coordinates
    * @param position World position in pixel
    */
-  inline void decrementByOneAt(sf::Vector2f position) {
+  inline void decrementByOneAt(sf::Vector2f const& position) {
     auto index = getIndexFromPosition(position);
     if (m_map.at(index.row).at(index.col) > 0)
       m_map.at(index.row).at(index.col) -= 1;
@@ -133,8 +139,42 @@ class Heatmap {
    * @param position World position in pixel
    */
   [[nodiscard]] int getValueAtIndex(HeatmapIndex index) const {
-    assert(index.col >= 0 && index.col < COLS && index.row >= 0 && index.row < COLS);
+    assert(index.col >= 0 && index.col < COLS && index.row >= 0 &&
+           index.row < COLS);
     return m_map.at(index.row).at(index.col);
+  }
+
+  /**
+   * Given a point in World coordinates, returns the height adjacent cells
+   * values
+   * @param position World position in pixel
+   * @param result
+   *
+   */
+  void findNeighbours(sf::Vector2f const& position,
+                      std::array<int, 8>& result) {
+    auto index = getIndexFromPosition(position);
+
+    // Add zero padding to all side of the map
+    Map_t<COLS + 2, ROWS + 2> paddedMap{};
+
+    // Copy the entire row data to the padded map
+    for (size_t row = 1; row < ROWS + 1; ++row) {
+       std::copy(m_map.at(row - 1).begin(), m_map.at(row - 1).end(), paddedMap.at(row).begin() + 1);
+    }
+
+    // Padded map is shifted by (1, 1)
+    index.row += 1;
+    index.col += 1;
+
+    result[0] = paddedMap.at(index.row - 1).at(index.col - 1);  // NW
+    result[1] = paddedMap.at(index.row - 1).at(index.col);      // N
+    result[2] = paddedMap.at(index.row - 1).at(index.col + 1);  // NE
+    result[3] = paddedMap.at(index.row).at(index.col - 1);      // W
+    result[4] = paddedMap.at(index.row).at(index.col + 1);      // E
+    result[5] = paddedMap.at(index.row + 1).at(index.col - 1);  // SW
+    result[6] = paddedMap.at(index.row + 1).at(index.col);      // S
+    result[7] = paddedMap.at(index.row + 1).at(index.col + 1);  // SE
   }
 };
 }  // namespace ants
