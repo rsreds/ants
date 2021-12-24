@@ -36,6 +36,17 @@ inline sf::Vector2f randomDirection() {
   return {r1, r2};
 }
 
+/**
+ * @brief Set the ant beahaviour
+ * 
+ * If the ant is leaving the anthill, update it to returning home if it reaches the food.
+ * If the ant is returning to the anthill, update it to searching for food if it reaches the colony.
+ * Set the ant to follow the appropriate marker or to move at random otherwise.
+ * Set the ant to stay within bounds.
+ * 
+ * @param colony Ant's starting colony 
+ * @param ant Ant object to update
+ */
 inline void World::updateAnt(Colony& colony, Ant& ant) {
   AntState currentState = ant.getState();
   MarkerType targetMarker = MarkerType::toFood;

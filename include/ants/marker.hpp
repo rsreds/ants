@@ -33,6 +33,14 @@ inline float Marker::getRemainingLife() const { return m_remainingLife; }
 
 inline MarkerType Marker::getType() const { return m_type; }
 
+/**
+ * @brief Find the marker with the highest remaining life in range
+ * 
+ * @param pos Ant position
+ * @param targetMarker Type of marker to look for
+ * @param markers Vector of markers in the world
+ * @return std::vector<Marker>::iterator 
+ */
 inline std::vector<Marker>::iterator findStrongestAdjacent(
     sf::Vector2f pos, MarkerType targetMarker, std::vector<Marker>& markers) {
   std::vector<Marker> adjacentMarkers;

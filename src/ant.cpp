@@ -4,6 +4,12 @@
 #include <random>
 
 namespace ants {
+  
+/**
+ * @brief Construct a new Ant:: Ant object
+ * 
+ * @param pos Starting position of the Ant
+ */
 Ant::Ant(sf::Vector2f pos) { setPosition(pos); }
 
 void Ant::setFillColor(const sf::Color& c) { m_color = c; }
@@ -35,6 +41,12 @@ sf::Vector2f Ant::getDirection() const { return m_direction; }
 AntState Ant::getState() const { return m_state; }
 float Ant::getSpeed() const { return m_speed; }
 void Ant::setState(AntState const& state) { m_state = state; }
+
+/**
+ * @brief Set direction of Ant object and rotates the shape
+ * 
+ * @param dir
+ */
 void Ant::setDirection(sf::Vector2f const& dir) {
   auto newAngle = sf::rad2deg(std::atan2(m_direction.y, m_direction.x));
   setRotation(newAngle);
