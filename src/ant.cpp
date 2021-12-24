@@ -46,7 +46,7 @@ void Ant::setDirection(Marker const& marker) {
 
 void Ant::setSpeed(float const& spd) { m_speed = spd; }
 
-void Ant::updatePosition(float const& elapsedTime, sf::Vector2u const& bounds) {
+void Ant::updatePosition(float const& elapsedTime) {
   sf::Vector2f velocity{m_direction};
   sf::setMagnitude(velocity, m_speed);
 //  setPosition(getPosition() + velocity * elapsedTime);
@@ -54,14 +54,13 @@ void Ant::updatePosition(float const& elapsedTime, sf::Vector2u const& bounds) {
 
 }
 
-void Ant::mark(std::vector<ants::Marker>& markers) {
+Marker Ant::dropMarker() {
   switch (m_state) {
-    case AntState::leavingAnthill:
-      markers.emplace_back(getPosition(), ants::MarkerType::toBase);
-      break;
+    case AntState::returningAnthill:
+      return {getPosition(), ants::MarkerType::toBase};
 
     default:
-      break;
+      return {getPosition(), ants::MarkerType::toFood};
   }
 }
 }  // namespace ants

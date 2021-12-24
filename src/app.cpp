@@ -53,23 +53,8 @@ void App::event() {
 
 void App::loop() {
   // Update game logic
-  for (auto& it : m_world.getMarkers()) {
-    it.tickLife(elapsedTime);
-  }
-
-  // Workaround to fix segfault erasing last element
-  m_world.getMarkers().erase(
-      std::remove_if(
-          m_world.getMarkers().begin(), m_world.getMarkers().end(),
-          [](const ants::Marker& m) { return m.getRemainingLife() <= 0; }),
-      m_world.getMarkers().end());
-
-  for (auto& colony : m_world.getColonies())
-    for (auto& ant : colony.m_ants) {
-      m_world.updateAnt(colony, ant);
-      ant.updatePosition(elapsedTime, m_window.getSize());
-      ant.mark(m_world.getMarkers());
-    }
+  m_world.updateMarkers(elapsedTime);
+  m_world.updateColonies(elapsedTime);
 }
 
 void App::render() {

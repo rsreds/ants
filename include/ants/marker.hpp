@@ -5,7 +5,9 @@
 
 #include <SFML/Graphics.hpp>
 #include <array>
+#include <cassert>
 #include <iostream>
+#include <iomanip>
 
 namespace ants {
 
@@ -56,48 +58,65 @@ inline std::vector<Marker>::iterator findStrongestAdjacent(
                           });
 };
 
-template <size_t M, size_t N>
-using Map_t = std::array<std::array<int, M>, N>;
+// Rows x Columns
+template <size_t COLS, size_t ROWS>
+using Map_t = std::array<std::array<int, COLS>, ROWS>;
 template <size_t Size>
 using AllMarkers_t = std::array<std::array<int, Size>, MarkerType::SIZE>;
+struct HeatMapIndex {
+  int row;
+  int col;
+};
 
-template <size_t M, size_t N>
+template <size_t COLS, size_t ROWS>
 class Heatmap {
  private:
-  Map_t<M, N> m_map{};  // rows x cols
-  float m_dw;           // Box's width
-  float m_dh;           // Box's height
+  Map_t<COLS, ROWS> m_map{};  // rows x cols
+  sf::Vector2i m_windowSize;
+  float m_dw;  // Box's width
+  float m_dh;  // Box's height
 
  public:
   explicit Heatmap(sf::Vector2i const& windowSize)
-      : m_dw{static_cast<float>(windowSize.x) / M},
-        m_dh{static_cast<float>(windowSize.y) / N} {}
+      : m_windowSize{windowSize},
+        m_dw{static_cast<float>(windowSize.x) / COLS},
+        m_dh{static_cast<float>(windowSize.y) / ROWS} {}
 
   void printHeatMap() const {
-    for (auto x : m_map) {
-      for (auto y : x) {
-        std::cout << y << ' ';
+    for (auto row : m_map) {
+      for (auto el : row) {
+        std::cout <<  std::setfill(' ') << std::setw(3) << el << ' ';
       }
       std::cout << '\n';
     }
+    std::cout << '\n';
   }
 
-  inline void incrementByOneAt(sf::Vector2f position) {
-    assert(position.x >= 0 && position.y >= 0);
-    int i = std::floor(position.x / m_dw);
-    int j = std::floor(position.y / m_dh);
-    m_map.at(i).at(j) += 1;
+  [[nodiscard]] inline sf::Vector2f getCellSize() const { return {m_dw, m_dh}; }
+
+  inline HeatMapIndex getIndexFromPosition(sf::Vector2f const& position) {
+    assert(position.x >= 0 && position.x <= m_windowSize.x &&
+           position.y >= 0 && position.y <= m_windowSize.y);
+    int col = std::floor(position.x / m_windowSize.x * COLS);
+    int row = std::floor(position.y / m_windowSize.y * ROWS);
+    return {row, col};
+  }
+
+  inline void incrementByOneAt(sf::Vector2f const& position) {
+    auto index = getIndexFromPosition(position);
+    m_map.at(index.row).at(index.col) += 1;
   }
 
   inline void decrementByOneAt(sf::Vector2f position) {
-    assert(position.x >= 0 && position.y >= 0);
-    int i = std::floor(position.x / m_dw);
-    int j = std::floor(position.y / m_dh);
-    if (m_map.at(i).at(j) > 0)
-      m_map.at(i).at(j) -= 1;
+    auto index = getIndexFromPosition(position);
+    if (m_map.at(index.row).at(index.col) > 0)
+      m_map.at(index.row).at(index.col) -= 1;
   }
 
-  [[nodiscard]] int getValueAtIndex(int i, int j) const { return m_map.at(i).at(j); }
+  [[nodiscard]] int getValueAtIndex(int col, int row) const {
+    assert(col >= 0 && col < COLS && row >= 0 && row < COLS);
+    return m_map.at(row).at(col);
+  }
 };
 }  // namespace ants
 

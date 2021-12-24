@@ -18,7 +18,7 @@ class Ant : public sf::Drawable, public sf::Transformable {
 
  public:
   explicit Ant(sf::Vector2f pos);
-  void updatePosition(float const& elapsedTime, sf::Vector2u const& bounds);
+  void updatePosition(float const& elapsedTime);
   sf::Vector2f getDirection() const;
   AntState getState() const;
   float getSpeed() const;
@@ -28,7 +28,7 @@ class Ant : public sf::Drawable, public sf::Transformable {
   void setState(AntState const& state);
   void setFillColor(const sf::Color& c);
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-  void mark(std::vector<ants::Marker>& markers);
+  ants::Marker dropMarker();
 };
 }  // namespace ants
 

@@ -4,14 +4,15 @@
 
 
 TEST_CASE("Operations") {
-  ants::Heatmap<6, 4> heatMap{{60, 40}};
-  heatMap.incrementByOneAt({22, 45});
-  heatMap.printHeatMap();
-  CHECK_EQ(heatMap.getValueAtIndex(2, 4), 1);
 
-  heatMap.incrementByOneAt({22, 45});
+  ants::Heatmap<6, 4> heatMap{{60, 40}};
+  heatMap.incrementByOneAt({22, 35});
   heatMap.printHeatMap();
-  CHECK_EQ(heatMap.getValueAtIndex(2, 4), 2);
+  CHECK_EQ(heatMap.getValueAtIndex(2, 3), 1);
+
+  heatMap.incrementByOneAt({22, 35});
+  heatMap.printHeatMap();
+  CHECK_EQ(heatMap.getValueAtIndex(2, 3), 2);
 
   heatMap.incrementByOneAt({33, 12});
   heatMap.printHeatMap();
@@ -53,4 +54,11 @@ TEST_CASE("Operations") {
   heatmap3.incrementByOneAt({500, 500});
   heatmap3.decrementByOneAt({500, 500});
   CHECK_EQ(heatmap3.getValueAtIndex(6, 8), 3);
+
+
+  ants::Heatmap<32, 24> heatmap4 {{800, 600}};
+  heatmap4.incrementByOneAt({798, 598});
+  heatmap4.printHeatMap();
+  CHECK_EQ(heatmap4.getValueAtIndex(31, 23), 1);
+
 }
