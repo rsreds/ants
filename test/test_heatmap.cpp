@@ -80,13 +80,14 @@ TEST_CASE("Neighbours") {
   heatmap.incrementByOneAt({10, 20});
   heatmap.incrementByOneAt({55, 5});
   heatmap.findNeighbours({26, 27}, result);
-  expected = {1, 0, 1, 0, 0, 0, 0, 0};
+
+  expected = {0, 1, 0, 0, 0, 0, 0, 1};
   eq = (result == expected);
   CHECK(eq);
 
   heatmap.incrementByOneAt({797, 580});
   heatmap.findNeighbours({754, 566}, result);
-  expected = { 0, 0, 0, 0, 0, 0, 0, 1};
+  expected = {0, 0, 0, 1, 0, 0, 0, 0};
   eq = (result == expected);
   CHECK(eq);
 
@@ -106,7 +107,7 @@ TEST_CASE("Neighbours") {
 
   heatmap1.print();
   heatmap1.findNeighbours({40, 20}, result);
-  expected = { 1, 1, 2, 1, 1, 2, 1, 1};
+  expected = {1, 2, 1, 1, 1, 2, 1, 1};
   eq = (result == expected);
   CHECK(eq);
 }

@@ -12,7 +12,7 @@
 namespace ants {
 
 // Keep SIZE as last element to compute how big the enum is
-enum MarkerType { toBase, toFood };
+enum MarkerType { toBase, toFood, allMarkers };
 
 class Marker : public sf::Transformable {
  private:
@@ -68,10 +68,10 @@ struct HeatmapIndex {
 };
 
 template <size_t COLS, size_t ROWS>
-void printMap(const Map_t<COLS, ROWS>& map) {
+inline void printMap(const Map_t<COLS, ROWS>& map) {
   for (auto row : map) {
     for (auto el : row) {
-      std::cout <<  std::setfill(' ') << std::setw(3) << el << ' ';
+      std::cout << std::setfill(' ') << std::setw(3) << el << ' ';
     }
     std::cout << '\n';
   }
@@ -96,9 +96,7 @@ class Heatmap {
    */
   explicit Heatmap(sf::Vector2i const& windowSize) : m_windowSize{windowSize} {}
 
-  void print() const {
-    printMap(m_map);
-  }
+  void print() const { printMap(m_map); }
 
   /**
    * Get the corresponding 2D index from screen position in pixels
@@ -160,21 +158,23 @@ class Heatmap {
 
     // Copy the entire row data to the padded map
     for (size_t row = 1; row < ROWS + 1; ++row) {
-       std::copy(m_map.at(row - 1).begin(), m_map.at(row - 1).end(), paddedMap.at(row).begin() + 1);
+      std::copy(m_map.at(row - 1).begin(), m_map.at(row - 1).end(),
+                paddedMap.at(row).begin() + 1);
     }
 
     // Padded map is shifted by (1, 1)
     index.row += 1;
     index.col += 1;
 
-    result[0] = paddedMap.at(index.row - 1).at(index.col - 1);  // NW
-    result[1] = paddedMap.at(index.row - 1).at(index.col);      // N
-    result[2] = paddedMap.at(index.row - 1).at(index.col + 1);  // NE
-    result[3] = paddedMap.at(index.row).at(index.col - 1);      // W
-    result[4] = paddedMap.at(index.row).at(index.col + 1);      // E
+    // Cardinal points [N, NE, E, SW, S, SW, E, NW]
+    result[0] = paddedMap.at(index.row - 1).at(index.col);      // N
+    result[1] = paddedMap.at(index.row - 1).at(index.col + 1);  // NE
+    result[2] = paddedMap.at(index.row).at(index.col + 1);      // E
+    result[3] = paddedMap.at(index.row + 1).at(index.col + 1);  // SE
+    result[4] = paddedMap.at(index.row + 1).at(index.col);      // S
     result[5] = paddedMap.at(index.row + 1).at(index.col - 1);  // SW
-    result[6] = paddedMap.at(index.row + 1).at(index.col);      // S
-    result[7] = paddedMap.at(index.row + 1).at(index.col + 1);  // SE
+    result[6] = paddedMap.at(index.row).at(index.col - 1);      // W
+    result[7] = paddedMap.at(index.row - 1).at(index.col - 1);  // NW
   }
 };
 }  // namespace ants
