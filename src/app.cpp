@@ -74,7 +74,19 @@ void App::render() {
     if (xPos <= 0 || xPos >= (int)m_window.getSize().x || yPos <= 0 ||
         yPos >= (int)m_window.getSize().y) continue;
 
-    sf::Color color = sf::Color::Red;
+    sf::Color color;
+    switch (marker.getType()) {
+      case ants::toBase:
+        color = sf::Color::Blue;
+        break;
+      case ants::toFood:
+        color = sf::Color::Red;
+        break;
+      default:
+        color = sf::Color::Magenta;
+        break;
+    }
+
     color.a = static_cast<uint8_t>(marker.getRemainingLife());
     markersMap.setPixel(xPos, yPos, color);
   }

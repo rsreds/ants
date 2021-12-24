@@ -55,35 +55,38 @@ inline void World::updateAnt(Colony& colony, Ant& ant) {
   AntState currentState = ant.getState();
   MarkerType targetMarker = MarkerType::toFood;
 
-  //  switch (currentState) {
-  //    case AntState::returningAnthill: {
-  //      if (colony.getAnthill().getGlobalBounds().contains(ant.getPosition()))
-  //      {
-  //        ant.setState(leavingAnthill);
-  //        return;
-  //      }
-  //      targetMarker = toBase;
-  //      break;
-  //    }
-  //    case AntState::leavingAnthill: {
-  //      for (auto& foodSource : m_foodSources) {
-  //        if (foodSource.getGlobalBounds().contains(ant.getPosition())) {
-  //          ant.setState(returningAnthill);
-  //          return;
-  //        }
-  //      }
-  //      targetMarker = toFood;
-  //      break;
-  //    }
-  //  }
+  switch (currentState) {
+    case AntState::returningAnthill: {
+
+      // Ant is within the Anthill
+      if (colony.getAnthill().getGlobalBounds().contains(ant.getPosition())) {
+        ant.setState(leavingAnthill);
+        return;
+      }
+      // Here chase food Marker
+      break;
+    }
+    case AntState::leavingAnthill: {
+      for (auto& foodSource : m_foodSources) {
+        // Ant is within the food source
+        if (foodSource.getGlobalBounds().contains(ant.getPosition())) {
+          ant.setState(returningAnthill);
+          return;
+        }
+      }
+      break;
+    }
+  }
 
   // This function returns if the ant is out of screen
   checkBounds(ant);
 
   // Add ant marker
   auto dropped = ant.dropMarker();
-  if (dropped.getPosition().x > 1 && dropped.getPosition().x < (static_cast<float>(m_worldSize.x) - 5.f) &&
-      dropped.getPosition().y > 1 && dropped.getPosition().y < (static_cast<float>(m_worldSize.y) - 5.f)) {
+  if (dropped.getPosition().x > 1 &&
+      dropped.getPosition().x < (static_cast<float>(m_worldSize.x) - 5.f) &&
+      dropped.getPosition().y > 1 &&
+      dropped.getPosition().y < (static_cast<float>(m_worldSize.y) - 5.f)) {
     m_markers.push_back(dropped);
     m_heatMap.incrementByOneAt(dropped.getPosition());
   }
