@@ -149,8 +149,8 @@ class Heatmap {
    * @param result
    *
    */
-  void findNeighbours(sf::Vector2f const& position,
-                      std::array<int, 8>& result) {
+  void findNeighbours(sf::Vector2f const& position, std::array<int, 8>& result,
+                      std::array<HeatmapIndex, 8>& indicies) {
     auto index = getIndexFromPosition(position);
 
     // Add zero padding to all side of the map
@@ -162,19 +162,21 @@ class Heatmap {
                 paddedMap.at(row).begin() + 1);
     }
 
-    // Padded map is shifted by (1, 1)
-    index.row += 1;
-    index.col += 1;
-
     // Cardinal points [N, NE, E, SW, S, SW, E, NW]
-    result[0] = paddedMap.at(index.row - 1).at(index.col);      // N
-    result[1] = paddedMap.at(index.row - 1).at(index.col + 1);  // NE
-    result[2] = paddedMap.at(index.row).at(index.col + 1);      // E
-    result[3] = paddedMap.at(index.row + 1).at(index.col + 1);  // SE
-    result[4] = paddedMap.at(index.row + 1).at(index.col);      // S
-    result[5] = paddedMap.at(index.row + 1).at(index.col - 1);  // SW
-    result[6] = paddedMap.at(index.row).at(index.col - 1);      // W
-    result[7] = paddedMap.at(index.row - 1).at(index.col - 1);  // NW
+    indicies[0] = {index.col, index.row - 1};      // N
+    indicies[1] = {index.col + 1, index.row - 1};  // NE
+    indicies[2] = {index.col + 1, index.row};      // E
+    indicies[3] = {index.col + 1, index.row + 1};  // SE
+    indicies[4] = {index.col, index.row + 1};      // S
+    indicies[5] = {index.col - 1, index.row + 1};  // SW
+    indicies[6] = {index.col - 1, index.row};      // W
+    indicies[7] = {index.col - 1, index.row - 1};  // NW
+
+    for (size_t t = 0; t < indicies.size(); ++t) {
+      auto idx = indicies[t];
+      // Padded map is shifted by (1, 1)
+      result[t] = paddedMap.at(idx.row + 1).at(idx.col + 1);
+    }
   }
 };
 }  // namespace ants

@@ -73,20 +73,21 @@ bool operator==(std::array<int, size> &a1, std::array<int, size> &a2) {
 
 TEST_CASE("Neighbours") {
   std::array<int, 8> result{};
+  std::array<ants::HeatmapIndex, 8> indices{};
   std::array<int, 8> expected{};
   bool eq;
 
   ants::Heatmap<32, 24> heatmap {{800, 600}};
   heatmap.incrementByOneAt({10, 20});
   heatmap.incrementByOneAt({55, 5});
-  heatmap.findNeighbours({26, 27}, result);
+  heatmap.findNeighbours({26, 27}, result, indices);
 
   expected = {0, 1, 0, 0, 0, 0, 0, 1};
   eq = (result == expected);
   CHECK(eq);
 
   heatmap.incrementByOneAt({797, 580});
-  heatmap.findNeighbours({754, 566}, result);
+  heatmap.findNeighbours({754, 566}, result, indices);
   expected = {0, 0, 0, 1, 0, 0, 0, 0};
   eq = (result == expected);
   CHECK(eq);
@@ -106,7 +107,7 @@ TEST_CASE("Neighbours") {
   heatmap1.incrementByOneAt({36.8, 27.9});  // SW
 
   heatmap1.print();
-  heatmap1.findNeighbours({40, 20}, result);
+  heatmap1.findNeighbours({40, 20}, result, indices);
   expected = {1, 2, 1, 1, 1, 2, 1, 1};
   eq = (result == expected);
   CHECK(eq);
