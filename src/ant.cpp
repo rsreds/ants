@@ -32,14 +32,26 @@ void Ant::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 sf::Vector2f Ant::getDirection() const { return m_direction; }
+float Ant::getHeading() const {
+  return sf::rad2deg(std::atan2(m_direction.y, m_direction.x));
+}
 AntState Ant::getState() const { return m_state; }
 float Ant::getSpeed() const { return m_speed; }
 void Ant::setState(AntState const& state) { m_state = state; }
+
+void Ant::setDirection(float angle) {
+  setRotation(angle);
+  auto rad = sf::deg2rad(angle);
+  m_direction.x = cos(rad);
+  m_direction.y = sin(rad);
+}
+
 void Ant::setDirection(sf::Vector2f const& dir) {
   auto newAngle = sf::rad2deg(std::atan2(m_direction.y, m_direction.x));
   setRotation(newAngle);
   m_direction = sf::normalizeCopy(dir);
 }
+
 void Ant::setDirection(Marker const& marker) {
   setDirection(marker.getPosition());
 }
@@ -49,18 +61,17 @@ void Ant::setSpeed(float const& spd) { m_speed = spd; }
 void Ant::updatePosition(float const& elapsedTime) {
   sf::Vector2f velocity{m_direction};
   sf::setMagnitude(velocity, m_speed);
-//  setPosition(getPosition() + velocity * elapsedTime);
+  //  setPosition(getPosition() + velocity * elapsedTime);
   move(velocity * elapsedTime);
-
 }
 
 Marker Ant::dropMarker() {
   switch (m_state) {
     case AntState::returningAnthill:
-      return {getPosition(), ants::MarkerType::toBase};
+      return {getPosition(), ants::MarkerType::toFood};
 
     default:
-      return {getPosition(), ants::MarkerType::toFood};
+      return {getPosition(), ants::MarkerType::toBase};
   }
 }
 }  // namespace ants

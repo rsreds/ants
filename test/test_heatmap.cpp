@@ -3,6 +3,7 @@
 #include <ants/marker.hpp>
 #include <iostream>
 
+constexpr float epsilon = 1e-4;
 
 TEST_CASE("Operations") {
 
@@ -61,6 +62,9 @@ TEST_CASE("Operations") {
   heatmap4.incrementByOneAt({798, 598});
   CHECK_EQ(heatmap4.getValueAtIndex({31, 23}), 1);
 
+  auto position = heatmap4.getPositionFromIndex({30, 20});
+  CHECK(abs(position.x - 762.5) < epsilon);
+  CHECK(abs(position.y - 512.5) < epsilon);
 }
 
 template <size_t size>

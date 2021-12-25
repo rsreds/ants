@@ -7,7 +7,7 @@ class Anthill : public sf::CircleShape {
  public:
   Anthill(sf::Vector2f pos) {
     setPosition(pos);
-    setRadius(10);
+    setRadius(20);
   }
 };
 }  // namespace ants

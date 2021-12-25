@@ -1,11 +1,17 @@
 #include <ants/app.hpp>
 #include <iostream>
 
-App::App(int screenWidth, int screenHeight)
+App::App(uint screenWidth, uint screenHeight)
     : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants"),
-      m_world{{screenWidth, screenHeight}}{
+      elapsedTime{0},
+      m_world{{screenWidth, screenHeight}} {
   m_window.setVerticalSyncEnabled(true);
 
+  const unsigned int pixelSize{1u};
+  const sf::Vector2u windowSize{screenWidth, screenHeight};
+  const sf::View view(sf::Vector2f(windowSize / pixelSize),
+                      sf::Vector2f(windowSize / pixelSize / 1u));
+//  m_window.setView(view);
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
 }
 
@@ -31,7 +37,7 @@ bool App::init() {
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
   // test_ant.setFillColor(m_themeManager.antColor());
   for (auto& colony : m_world.getColonies()) {
-    for (int i = 0; i < 20; ++i) colony.spawn();
+    for (int i = 0; i < 100; ++i) colony.spawn();
   }
 
   for (auto& foodSource : m_world.getFoodSources()) {
@@ -72,15 +78,16 @@ void App::render() {
 
     // If marker is outside visible window don't draw it
     if (xPos <= 0 || xPos >= (int)m_window.getSize().x || yPos <= 0 ||
-        yPos >= (int)m_window.getSize().y) continue;
+        yPos >= (int)m_window.getSize().y)
+      continue;
 
     sf::Color color;
     switch (marker.getType()) {
       case ants::toBase:
-        color = sf::Color::Blue;
+        color = sf::Color::Red;
         break;
       case ants::toFood:
-        color = sf::Color::Red;
+        color = sf::Color::Blue;
         break;
       default:
         color = sf::Color::Magenta;

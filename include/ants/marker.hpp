@@ -87,14 +87,14 @@ template <size_t COLS, size_t ROWS>
 class Heatmap {
  private:
   Map_t<COLS, ROWS> m_map{};  // rows x cols
-  sf::Vector2i m_windowSize;
+  sf::Vector2u m_windowSize;
 
  public:
   /**
    * Initialize Heatmap
    * @param windowSize Screen windows size to compute columns and rows sizes
    */
-  explicit Heatmap(sf::Vector2i const& windowSize) : m_windowSize{windowSize} {}
+  explicit Heatmap(sf::Vector2u const& windowSize) : m_windowSize{windowSize} {}
 
   void print() const { printMap(m_map); }
 
@@ -109,6 +109,13 @@ class Heatmap {
     size_t col = std::floor(position.x / m_windowSize.x * COLS);
     size_t row = std::floor(position.y / m_windowSize.y * ROWS);
     return {col, row};
+  }
+
+  inline sf::Vector2f getPositionFromIndex(HeatmapIndex const& index) {
+    float w = m_windowSize.x / static_cast<float>(COLS);
+    float h = m_windowSize.y / static_cast<float>(ROWS);
+    return {static_cast<float>(index.col) * w + w / 2.f,
+            static_cast<float>(index.row) * h + h / 2.f};
   }
 
   /**
@@ -150,7 +157,7 @@ class Heatmap {
    *
    */
   void findNeighbours(sf::Vector2f const& position, std::array<int, 8>& result,
-                      std::array<HeatmapIndex, 8>& indicies) {
+                      std::array<HeatmapIndex, 8>& indexes) {
     auto index = getIndexFromPosition(position);
 
     // Add zero padding to all side of the map
@@ -163,20 +170,37 @@ class Heatmap {
     }
 
     // Cardinal points [N, NE, E, SW, S, SW, E, NW]
-    indicies[0] = {index.col, index.row - 1};      // N
-    indicies[1] = {index.col + 1, index.row - 1};  // NE
-    indicies[2] = {index.col + 1, index.row};      // E
-    indicies[3] = {index.col + 1, index.row + 1};  // SE
-    indicies[4] = {index.col, index.row + 1};      // S
-    indicies[5] = {index.col - 1, index.row + 1};  // SW
-    indicies[6] = {index.col - 1, index.row};      // W
-    indicies[7] = {index.col - 1, index.row - 1};  // NW
+    indexes[0] = {index.col, index.row - 1};      // N
+    indexes[1] = {index.col + 1, index.row - 1};  // NE
+    indexes[2] = {index.col + 1, index.row};      // E
+    indexes[3] = {index.col + 1, index.row + 1};  // SE
+    indexes[4] = {index.col, index.row + 1};      // S
+    indexes[5] = {index.col - 1, index.row + 1};  // SW
+    indexes[6] = {index.col - 1, index.row};      // W
+    indexes[7] = {index.col - 1, index.row - 1};  // NW
 
-    for (size_t t = 0; t < indicies.size(); ++t) {
-      auto idx = indicies[t];
+    for (size_t t = 0; t < indexes.size(); ++t) {
+      auto idx = adjacentFromCardinalDirection(index, t);
       // Padded map is shifted by (1, 1)
       result[t] = paddedMap.at(idx.row + 1).at(idx.col + 1);
     }
+  }
+
+ public:
+  static inline constexpr HeatmapIndex adjacentFromCardinalDirection(
+      HeatmapIndex const& index, int direction) {
+    std::array<HeatmapIndex, 8> cardinalDirections{{
+        {index.col, index.row - 1},      // N
+        {index.col + 1, index.row - 1},  // NE
+        {index.col + 1, index.row},      // E
+        {index.col + 1, index.row + 1},  // SE
+        {index.col, index.row + 1},      // S
+        {index.col - 1, index.row + 1},  // SW
+        {index.col - 1, index.row},      // W
+        {index.col - 1, index.row - 1}   // NW
+    }};
+
+    return cardinalDirections[direction];
   }
 };
 }  // namespace ants

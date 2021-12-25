@@ -11,13 +11,13 @@ class App {
   sf::Event m_event{};
   sf::RenderWindow m_window;
   sf::Clock clock;
-  float elapsedTime;
+  float elapsedTime{};
   ants::World m_world;
 
   GUI::ThemeManager m_themeManager;
 
  public:
-  explicit App(int screenWidth = 800, int screenHeight = 600);
+  explicit App(uint screenWidth = 800, uint screenHeight = 600);
 
  public:
   int run();
