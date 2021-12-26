@@ -1,8 +1,9 @@
-#ifndef ANTS_HEATMAP_H
-#define ANTS_HEATMAP_H
+#ifndef ANTS_HEATMAP_HPP
+#define ANTS_HEATMAP_HPP
 
 #include <array>
 #include <iostream>
+
 #include "ants/marker.hpp"
 
 namespace ants {
@@ -17,7 +18,7 @@ struct HeatmapIndex {
 
 template <size_t COLS, size_t ROWS>
 inline void printMap(const Map_t<COLS, ROWS>& map) {
-  for (auto row : map) {
+  for (auto &row : map) {
     for (auto el : row) {
       std::cout << std::setfill(' ') << std::setw(3) << el << ' ';
     }
@@ -112,21 +113,13 @@ class Heatmap {
     Map_t<COLS + 2, ROWS + 2> paddedMap{};
 
     // Copy the entire row data to the padded map
+    // Fixme we could directly use the padded map instead of two separated maps
     for (size_t row = 1; row < ROWS + 1; ++row) {
       std::copy(m_map.at(row - 1).begin(), m_map.at(row - 1).end(),
                 paddedMap.at(row).begin() + 1);
     }
 
-    // Cardinal points [N, NE, E, SW, S, SW, E, NW]
-    indexes[0] = {index.col, index.row - 1};      // N
-    indexes[1] = {index.col + 1, index.row - 1};  // NE
-    indexes[2] = {index.col + 1, index.row};      // E
-    indexes[3] = {index.col + 1, index.row + 1};  // SE
-    indexes[4] = {index.col, index.row + 1};      // S
-    indexes[5] = {index.col - 1, index.row + 1};  // SW
-    indexes[6] = {index.col - 1, index.row};      // W
-    indexes[7] = {index.col - 1, index.row - 1};  // NW
-
+    // Compute the neighbours
     for (size_t t = 0; t < indexes.size(); ++t) {
       auto idx = adjacentFromCardinalDirection(index, t);
       // Padded map is shifted by (1, 1)
@@ -135,6 +128,14 @@ class Heatmap {
   }
 
  public:
+  /**
+   * Get from a given index its neighbour which points to a given cardinal
+   * direction
+   * @param index The cell we are asking for its neighbour
+   * @param direction The direction of the neighbour, starting from N clockwise.
+   * E.g. direction = 3 means SE
+   * @return Index of the neighbour in the given direction
+   */
   static inline constexpr HeatmapIndex adjacentFromCardinalDirection(
       HeatmapIndex const& index, int direction) {
     std::array<HeatmapIndex, 8> cardinalDirections{{
@@ -147,9 +148,8 @@ class Heatmap {
         {index.col - 1, index.row},      // W
         {index.col - 1, index.row - 1}   // NW
     }};
-
     return cardinalDirections[direction];
   }
 };
 }  // namespace ants
-#endif  // ANTS_HEATMAP_H
+#endif  // ANTS_HEATMAP_HPP

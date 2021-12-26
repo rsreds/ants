@@ -4,7 +4,7 @@
 #include <ants/colony.hpp>
 #include <ants/food.hpp>
 #include <ants/marker.hpp>
-#include <ants/heatmap.h>
+#include <ants/heatmap.hpp>
 #include <random>
 #include <vector>
 #include <cmath>

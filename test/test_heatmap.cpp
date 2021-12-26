@@ -1,7 +1,8 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest.h"
-#include <ants/marker.hpp>
 #include <iostream>
+#include "doctest.h"
+#include "ants/marker.hpp"
+#include "ants/heatmap.hpp"
 
 constexpr float epsilon = 1e-4;
 
