@@ -4,6 +4,7 @@
 #include <ants/colony.hpp>
 #include <ants/food.hpp>
 #include <ants/marker.hpp>
+#include <ants/heatmap.h>
 #include <random>
 #include <vector>
 #include <cmath>
@@ -16,8 +17,8 @@ class World {
   std::vector<FoodSource> m_foodSources;
   std::vector<Marker> m_markers;
   sf::Vector2u m_worldSize;
-  static constexpr int COLS = 32 * 1;
-  static constexpr int ROWS = 24 * 1;
+  static constexpr int COLS = 32 * 3;
+  static constexpr int ROWS = 24 * 3;
   std::array<Heatmap<World::COLS, World::ROWS>, MarkerType::allMarkers>
       m_heatMaps;
 
@@ -106,7 +107,7 @@ inline void World::updateAnt(Colony& colony, Ant& ant) {
   //
   // N = 0°, NE = 45°, E = 90°, SE = 135°, S = 180°, SW = 225°, NW = 315°
 
-  constexpr int kernelSize = 3;
+  constexpr int kernelSize = 5;
   std::array<int, 8> neighbours{};
   std::array<int, 8 + kernelSize> paddedNeighbours{};
   std::array<HeatmapIndex, 8> neighboursIndexes{};
@@ -132,10 +133,10 @@ inline void World::updateAnt(Colony& colony, Ant& ant) {
   // Looking at North
   if (heading == 0) heading += 8;
 
-  int minHeading = heading - 1;  // Min view angle
-  int maxHeading = heading + 1;  // Max view angle
-  assert(minHeading >= 0 && minHeading < (8 + kernelSize - 1));
-  assert(maxHeading >= (kernelSize - 1) && maxHeading < (8 + kernelSize));
+  int minHeading = heading - 2;  // Min view angle
+  int maxHeading = heading + 2;  // Max view angle
+//  assert(minHeading >= 0 && minHeading < (8 + kernelSize - 1));
+//  assert(maxHeading >= (kernelSize - 1) && maxHeading < (8 + kernelSize));
 
   // Restrict search only between min and max view angle
   auto highestMarkerConcentration =
@@ -154,12 +155,9 @@ inline void World::updateAnt(Colony& colony, Ant& ant) {
         m_heatMaps.at(targetMarker).getIndexFromPosition(ant.getPosition());
     auto targetIndex = Heatmap<COLS, ROWS>::adjacentFromCardinalDirection(
         antIndexInHeatmap, direction);
-    auto targetPosition = m_heatMaps.at(targetMarker).getPositionFromIndex(targetIndex);
-    //    assert(direction >= 0 && direction < 360);
 
-    auto currentDirection = ant.getDirection();
+    auto targetPosition = m_heatMaps.at(targetMarker).getPositionFromIndex(targetIndex);
     auto newDirection = targetPosition - ant.getPosition();
-    //newDirection = sf::lerp(currentDirection, newDirection, 1.f);
     ant.setDirection(newDirection);
   }
   ant.setDirection(ant.getDirection() + randomDirection());
