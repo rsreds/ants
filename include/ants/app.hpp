@@ -12,7 +12,7 @@ class App {
   sf::RenderWindow m_window;
   sf::Clock clock;
   float elapsedTime{};
-  ants::World m_world;
+  ants::World<32, 24> m_world;
 
   GUI::ThemeManager m_themeManager;
 

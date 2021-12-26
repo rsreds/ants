@@ -18,7 +18,7 @@ struct HeatmapIndex {
 
 template <size_t COLS, size_t ROWS>
 inline void printMap(const Map_t<COLS, ROWS>& map) {
-  for (auto &row : map) {
+  for (auto& row : map) {
     for (auto el : row) {
       std::cout << std::setfill(' ') << std::setw(3) << el << ' ';
     }
@@ -33,17 +33,24 @@ inline void printMap(const Map_t<COLS, ROWS>& map) {
  * @tparam ROWS Number of rows
  */
 template <size_t COLS, size_t ROWS>
-class Heatmap {
+class Heatmap : public sf::Drawable {
  private:
   Map_t<COLS, ROWS> m_map{};  // rows x cols
   sf::Vector2u m_windowSize;
+  float m_dw;
+  float m_dh;
+  sf::Color m_color{sf::Color::Magenta};
 
  public:
   /**
    * Initialize Heatmap
    * @param windowSize Screen windows size to compute columns and rows sizes
    */
-  explicit Heatmap(sf::Vector2u const& windowSize) : m_windowSize{windowSize} {}
+  explicit Heatmap(sf::Vector2u const& windowSize)
+      : m_windowSize{windowSize}{
+    m_dw = m_windowSize.x / (float)COLS;
+    m_dh = m_windowSize.y / (float)ROWS;
+  }
 
   void print() const { printMap(m_map); }
 
@@ -68,13 +75,30 @@ class Heatmap {
   }
 
   /**
+   * Increment by one the value at cell with given index
+   * @param index Index of the cell
+   */
+  inline void incrementByOneAtIndex(HeatmapIndex const& index) {
+    m_map.at(index.row).at(index.col) += 1;
+  }
+
+  /**
+   * Increment by one the value at cell with given index
+   * @param index Index of the cell
+   */
+  inline void decrementByOneAtIndex(HeatmapIndex const& index) {
+    if (m_map.at(index.row).at(index.col) > 0)
+      m_map.at(index.row).at(index.col) -= 1;
+  }
+
+  /**
    * Increment by one the value at the corresponding element in world
    * coordinates
    * @param position World position in pixel
    */
-  inline void incrementByOneAt(sf::Vector2f const& position) {
+  inline void incrementByOneAtPosition(sf::Vector2f const& position) {
     auto index = getIndexFromPosition(position);
-    m_map.at(index.row).at(index.col) += 1;
+    incrementByOneAtIndex(index);
   }
 
   /**
@@ -82,10 +106,9 @@ class Heatmap {
    * coordinates
    * @param position World position in pixel
    */
-  inline void decrementByOneAt(sf::Vector2f const& position) {
+  inline void decrementByOneAtPosition(sf::Vector2f const& position) {
     auto index = getIndexFromPosition(position);
-    if (m_map.at(index.row).at(index.col) > 0)
-      m_map.at(index.row).at(index.col) -= 1;
+    decrementByOneAtIndex(index);
   }
 
   /**
@@ -149,6 +172,24 @@ class Heatmap {
         {index.col - 1, index.row - 1}   // NW
     }};
     return cardinalDirections[direction];
+  }
+ public:
+  void setColor(const sf::Color& color) { m_color = color;}
+ private:
+  void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
+    for (size_t x = 1; x <= COLS; ++x) {
+      for (size_t y = 1; y <= ROWS; ++y) {
+        auto rect = sf::RectangleShape{{m_dw, m_dh}};
+        rect.setPosition((x - 1) * m_dw, (y - 1) * m_dh);
+        auto c = m_color;
+        c.a = getValueAtIndex({x - 1, y - 1});
+        rect.setFillColor(c);
+
+        rect.setOutlineColor({0, 0, 0, 20});
+        rect.setOutlineThickness(.5);
+        target.draw(rect);
+      }
+    }
   }
 };
 }  // namespace ants
