@@ -17,8 +17,8 @@ class World {
   std::vector<FoodSource> m_foodSources;
   std::vector<Marker> m_markers;
   sf::Vector2u m_worldSize;
-  static constexpr int COLS = 32 * 3;
-  static constexpr int ROWS = 24 * 3;
+  static constexpr int COLS = 32 * 1;
+  static constexpr int ROWS = 24 * 1;
   std::array<Heatmap<World::COLS, World::ROWS>, MarkerType::allMarkers>
       m_heatMaps;
 
@@ -107,7 +107,7 @@ inline void World::updateAnt(Colony& colony, Ant& ant) {
   //
   // N = 0°, NE = 45°, E = 90°, SE = 135°, S = 180°, SW = 225°, NW = 315°
 
-  constexpr int kernelSize = 5;
+  constexpr int kernelSize = 3;
   std::array<int, 8> neighbours{};
   std::array<int, 8 + kernelSize> paddedNeighbours{};
   std::array<HeatmapIndex, 8> neighboursIndexes{};
@@ -140,7 +140,7 @@ inline void World::updateAnt(Colony& colony, Ant& ant) {
 
   // Restrict search only between min and max view angle
   auto highestMarkerConcentration =
-      std::max(paddedNeighbours.begin() + minHeading,
+      std::max_element(paddedNeighbours.begin() + minHeading,
                paddedNeighbours.begin() + maxHeading);
 
   if (*highestMarkerConcentration != 0) {
@@ -151,14 +151,17 @@ inline void World::updateAnt(Colony& colony, Ant& ant) {
     if (direction > 7) direction -= 8;
     assert(direction < 8);
 
+    // Find in which heatmap cell the ant is
     auto antIndexInHeatmap =
         m_heatMaps.at(targetMarker).getIndexFromPosition(ant.getPosition());
+
     auto targetIndex = Heatmap<COLS, ROWS>::adjacentFromCardinalDirection(
         antIndexInHeatmap, direction);
 
     auto targetPosition = m_heatMaps.at(targetMarker).getPositionFromIndex(targetIndex);
     auto newDirection = targetPosition - ant.getPosition();
-    ant.setDirection(newDirection);
+    auto currentDirection = ant.getDirection();
+    ant.setDirection(sf::lerp(currentDirection, newDirection, 0.7f));
   }
   ant.setDirection(ant.getDirection() + randomDirection());
   //  ant.setDirection(90);
