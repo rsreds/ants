@@ -16,6 +16,10 @@ struct HeatmapIndex {
   size_t row;
 };
 
+inline bool operator==(const HeatmapIndex &i, const HeatmapIndex &j) {
+  return i.col == j.col && i.row == j.row;
+}
+
 template <size_t COLS, size_t ROWS>
 inline void printMap(const Map_t<COLS, ROWS>& map) {
   for (auto& row : map) {
@@ -48,6 +52,7 @@ class Heatmap : public sf::Drawable {
    */
   explicit Heatmap(sf::Vector2u const& windowSize)
       : m_windowSize{windowSize}{
+    std::cout << m_windowSize.x << ' ' << m_windowSize.y;
     m_dw = m_windowSize.x / (float)COLS;
     m_dh = m_windowSize.y / (float)ROWS;
   }

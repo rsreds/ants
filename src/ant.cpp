@@ -8,6 +8,9 @@ Ant::Ant(sf::Vector2f pos) { setPosition(pos); }
 
 void Ant::setFillColor(const sf::Color& c) { m_color = c; }
 
+void Ant::setCurrentMapIndex(const HeatmapIndex& index) {
+  m_currentMapIndex = index;
+}
 void Ant::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   states.transform *= getTransform();
   float radius = 3;
@@ -38,6 +41,8 @@ float Ant::getHeading() const {
 AntState Ant::getState() const { return m_state; }
 float Ant::getSpeed() const { return m_speed; }
 void Ant::setState(AntState const& state) { m_state = state; }
+
+HeatmapIndex Ant::getCurrentHeatmapIndex() const { return m_currentMapIndex; }
 
 void Ant::setDirection(float angle) {
   setRotation(angle);

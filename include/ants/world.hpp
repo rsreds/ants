@@ -102,11 +102,19 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant) {
     return;
   }
 
+  auto currentHeatmapIndex = m_heatMaps.at(toFood).getIndexFromPosition(ant.getPosition());
+
   // Add ant marker
   auto dropped = ant.dropMarker();
   m_markers.push_back(dropped);
   m_heatMaps.at(dropped.getType())
       .incrementByOneAtPosition(dropped.getPosition());
+
+  // If we are still within the same cell, move randomly until the next one
+  if (currentHeatmapIndex == ant.getCurrentHeatmapIndex()) {
+    ant.setDirection(ant.getDirection() + randomDirection());
+    return;}
+  ant.setCurrentMapIndex(currentHeatmapIndex);
 
   // Find the strongest neighbour
   // Cardinal points order: [N, NE, W, SE, S, SW, W, NW]
@@ -151,7 +159,7 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant) {
       std::max_element(paddedNeighbours.begin() + minHeading,
                        paddedNeighbours.begin() + maxHeading);
 
-  if (*highestMarkerConcentration != 0) {
+  if (*highestMarkerConcentration > 0) {
     // Find the cardinal direction index with the highest concentration
     int direction =
         static_cast<int>(highestMarkerConcentration - paddedNeighbours.begin());
@@ -174,7 +182,7 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant) {
         m_heatMaps.at(targetMarker).getPositionFromIndex(targetIndex);
     auto currentDirection = ant.getDirection();
     auto newDirection = targetPosition - ant.getPosition();
-    ant.setDirection(sf::lerp(currentDirection, newDirection, 0.1f));
+    ant.setDirection(sf::lerp(currentDirection, newDirection, 0.7f));
   }
   ant.setDirection(ant.getDirection() + randomDirection());
   //  ant.setDirection(90);

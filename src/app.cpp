@@ -4,14 +4,10 @@
 App::App(uint screenWidth, uint screenHeight)
     : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants"),
       elapsedTime{0},
-      m_world{{screenWidth, screenHeight}} {
+      m_world{{WIDTH, HEIGHT} } {
   m_window.setVerticalSyncEnabled(true);
-
-  const unsigned int pixelSize{1u};
-  const sf::Vector2u windowSize{screenWidth, screenHeight};
-  const sf::View view(sf::Vector2f(windowSize / pixelSize),
-                      sf::Vector2f(windowSize / pixelSize / 1u));
-//  m_window.setView(view);
+  sf::FloatRect area(0, 0, WIDTH, HEIGHT);
+  m_window.setView(sf::View(area));
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
 }
 

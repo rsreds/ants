@@ -3,8 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 #include <ants/world.hpp>
-#include <gui/theme.hpp>
 #include <cassert>
+#include <gui/theme.hpp>
 
 class App {
  private:
@@ -12,12 +12,15 @@ class App {
   sf::RenderWindow m_window;
   sf::Clock clock;
   float elapsedTime{};
-  ants::World<32, 24> m_world;
+  ants::World<64, 48> m_world;
 
   GUI::ThemeManager m_themeManager;
+ public:
+  static constexpr uint WIDTH = 800;
+  static constexpr uint HEIGHT = 600;
 
  public:
-  explicit App(uint screenWidth = 800, uint screenHeight = 600);
+  explicit App(uint screenWidth = 1600, uint screenHeight = 1200);
 
  public:
   int run();
