@@ -58,6 +58,8 @@ class Heatmap : public sf::Drawable {
 
   void print() const { printMap(m_map); }
 
+  void clear() { for(auto &arr : m_map) arr = {}; }
+
   /**
    * Get the corresponding 2D index from screen position in pixels
    * @param position World position in pixel

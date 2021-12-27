@@ -57,8 +57,15 @@ void App::event() {
       }
       break;
     case sf::Event::KeyPressed:
+      // Show/Hide heatmap
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::H)) {
         m_showHeatmap = !m_showHeatmap;
+        // Reset
+      } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+        m_world.reset();
+        for (auto& colony : m_world.getColonies()) {
+          for (int i = 0; i < m_nAnts; ++i) colony.spawn();
+        }
       }
     default:;
   }

@@ -48,6 +48,7 @@ class World {
   void updateColonies(float elapsedTime);
   void updateMarkers(float elapsedTime);
   void addFoodSource(const FoodSource& foodSource);
+  void reset();
 
  private:
   void checkBounds(Ant& ant) const;
@@ -82,6 +83,17 @@ void World<COLS, ROWS>::addFoodSource(const FoodSource& foodSource) {
   m_foodSources.back().setFillColor(m_themeManager.foodColor());
   addSourceToHeatmap(foodSource, m_heatMaps.at(toFood), foodSource.getAmount());
 }
+
+template <size_t COLS, size_t ROWS>
+void World<COLS, ROWS>::reset() {
+  m_foodSources.clear();
+  for (auto &colony : m_colonies)
+    colony.m_ants.clear();
+  m_markers.clear();
+  m_heatMaps.at(toFood).clear();
+  m_heatMaps.at(toBase).clear();
+}
+
 inline sf::Vector2f randomDirection() {
   std::random_device r;
   std::default_random_engine e1(r());
