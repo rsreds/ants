@@ -140,8 +140,6 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
     return;
   }
 
-
-
   // Add ant marker only if we did not get lost
   if (ant.getState() != noSuccess) {
     auto dropped = ant.dropMarker();
@@ -164,7 +162,6 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
   // Neighbours padding
   // We copy the first viewWindow elements at the end to handle window at north
   // E.g. padded: [N, NE, W, SE, S, SW, W, NW, N, NE, E]
-
   constexpr int viewWindow = 3;
   std::array<int, 8 + viewWindow> paddedNeighbours{};
   for (size_t i = 0; i < paddedNeighbours.size(); ++i) {
@@ -237,8 +234,6 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
     // Compute new direction
     auto newDirection = targetPosition - ant.getPosition();
     sf::normalize(newDirection);
-    assert(newDirection.x >= -1 && newDirection.x <= 1);
-    assert(newDirection.y >= -1 && newDirection.y <= 1);
 
     auto currentDirection = ant.getDirection();
     // Smooth down the steering velocity
