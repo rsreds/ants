@@ -4,7 +4,10 @@
 #include <random>
 
 namespace ants {
-Ant::Ant(sf::Vector2f pos) { setPosition(pos); }
+Ant::Ant(sf::Vector2f pos) {
+  setPosition(pos);
+  setDirection(sf::randomVector(-1, 1));
+}
 
 void Ant::setFillColor(const sf::Color& c) { m_color = c; }
 
@@ -40,9 +43,11 @@ float Ant::getHeading() const {
 }
 AntState Ant::getState() const { return m_state; }
 float Ant::getSpeed() const { return m_speed; }
-void Ant::setState(AntState const& state) { m_state = state; }
-
 HeatmapIndex Ant::getCurrentHeatmapIndex() const { return m_currentMapIndex; }
+float Ant::getRemainingTimeToHunt() const { return m_remainingTimeToHunt; }
+
+// Setters
+void Ant::setState(AntState const& state) { m_state = state; }
 
 void Ant::setDirection(float angle) {
   setRotation(angle);
@@ -78,5 +83,13 @@ Marker Ant::dropMarker() {
     default:
       return {getPosition(), ants::MarkerType::toBase};
   }
+}
+
+void Ant::resetHuntingTimer() {
+  m_remainingTimeToHunt = huntingTimeout;
+}
+
+void Ant::tickHuntingTimer(const float elapsedTime) {
+  m_remainingTimeToHunt -= elapsedTime * 10;
 }
 }  // namespace ants
