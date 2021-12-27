@@ -4,11 +4,11 @@
 App::App(uint screenWidth, uint screenHeight)
     : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants"),
       elapsedTime{0},
-      m_world{{WIDTH, HEIGHT} } {
+      m_world{{WIDTH, HEIGHT}, m_themeManager} {
   m_window.setVerticalSyncEnabled(true);
   sf::FloatRect area(0, 0, WIDTH, HEIGHT);
   m_window.setView(sf::View(area));
-  m_themeManager.applyTheme(GUI::Theme::Type::polar);
+  m_themeManager.applyTheme(GUI::Theme::Type::polarDark);
 }
 
 int App::run() {
@@ -36,10 +36,6 @@ bool App::init() {
     for (int i = 0; i < m_nAnts; ++i) colony.spawn();
   }
 
-  for (auto& foodSource : m_world.getFoodSources()) {
-    foodSource.setFillColor(m_themeManager.foodColor());
-  }
-
   return true;
 }
 
@@ -49,6 +45,21 @@ void App::event() {
     case sf::Event::Closed:
       m_window.close();
       break;
+    case sf::Event::MouseButtonPressed:
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        sf::Vector2f mousePos =
+            static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window));
+        mousePos.x *= static_cast<float>(WIDTH) /
+                      static_cast<float>(m_window.getSize().x);
+        mousePos.y *= static_cast<float>(HEIGHT) /
+                      static_cast<float>(m_window.getSize().y);
+        m_world.addFoodSource({100, mousePos});
+      }
+      break;
+    case sf::Event::KeyPressed:
+      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::H)) {
+        m_showHeatmap = !m_showHeatmap;
+      }
     default:;
   }
 }
@@ -99,9 +110,10 @@ void App::render() {
   sf::Sprite s(t);
   m_window.draw(s);
 
-//  m_window.draw(m_world.getHeatmap(ants::toFood));
-//  m_window.draw(m_world.getHeatmap(ants::toBase));
-
+  if (m_showHeatmap) {
+    m_window.draw(m_world.getHeatmap(ants::toFood));
+    m_window.draw(m_world.getHeatmap(ants::toBase));
+  }
   // Draw Food
   for (auto& foodSource : m_world.getFoodSources()) {
     m_window.draw(foodSource);

@@ -18,35 +18,17 @@ class World {
   std::vector<FoodSource> m_foodSources;
   std::vector<Marker> m_markers;
   sf::Vector2u m_worldSize;
+  GUI::ThemeManager &m_themeManager;
 
   std::array<Heatmap<COLS, ROWS>, 2> m_heatMaps;
 
  public:
-  explicit World(sf::Vector2u const& worldSize)
+  explicit World(sf::Vector2u const& worldSize, GUI::ThemeManager &themeManager)
       : m_worldSize{worldSize},
+        m_themeManager{themeManager},
         m_heatMaps{Heatmap<COLS, ROWS>{worldSize},
                    Heatmap<COLS, ROWS>{worldSize}} {
     m_colonies.emplace_back(sf::Vector2f{150.f, 300.f}, 200);
-    m_foodSources.emplace_back(100, sf::Vector2f{350.f, 450.f});
-    m_foodSources.emplace_back(100, sf::Vector2f{550.f, 100.f});
-
-    // Add food/base marker at sources locations
-    auto addSourceToHeatmap = [](sf::Shape const& source,
-                                 Heatmap<COLS, ROWS>& map, int value) {
-      auto minX = source.getGlobalBounds().left;
-      auto minY = source.getGlobalBounds().top;
-      auto maxX = minX + source.getGlobalBounds().width;
-      auto maxY = minY + source.getGlobalBounds().height;
-
-      HeatmapIndex topLeft = map.getIndexFromPosition({minX, minY});
-      HeatmapIndex bottomRight = map.getIndexFromPosition({maxX, maxY});
-
-      for (size_t row = topLeft.row; row <= bottomRight.row; ++row) {
-        for (size_t col = topLeft.col; col <= bottomRight.col; ++col) {
-          map.setAmountAtIndex({col, row}, value);
-        }
-      }
-    };
 
     int amount = 200;
     for (auto& colony : m_colonies)
@@ -60,17 +42,46 @@ class World {
   std::vector<Colony>& getColonies() { return m_colonies; }
   std::vector<FoodSource>& getFoodSources() { return m_foodSources; }
   std::vector<Marker>& getMarkers() { return m_markers; }
-  void updateColonies(float elapsedTime);
-  void updateMarkers(float elapsedTime);
-  Heatmap<COLS, ROWS>& getHeatmap(MarkerType type) {
+  Heatmap<COLS, ROWS>& getHeatmap(const MarkerType type) {
     return m_heatMaps.at(type);
   }
+  void updateColonies(float elapsedTime);
+  void updateMarkers(float elapsedTime);
+  void addFoodSource(const FoodSource& foodSource);
 
  private:
   void checkBounds(Ant& ant) const;
   void updateAnt(Colony& colony, Ant& ant, float elapsedTime);
+  void addSourceToHeatmap(sf::Shape const& source, Heatmap<COLS, ROWS>& map,
+                          int value);
 };
 
+// Add food/base marker at sources locations
+template <size_t COLS, size_t ROWS>
+void World<COLS, ROWS>::addSourceToHeatmap(sf::Shape const& source,
+                                           Heatmap<COLS, ROWS>& map,
+                                           int value) {
+  auto minX = source.getGlobalBounds().left;
+  auto minY = source.getGlobalBounds().top;
+  auto maxX = minX + source.getGlobalBounds().width;
+  auto maxY = minY + source.getGlobalBounds().height;
+
+  HeatmapIndex topLeft = map.getIndexFromPosition({minX, minY});
+  HeatmapIndex bottomRight = map.getIndexFromPosition({maxX, maxY});
+
+  for (size_t row = topLeft.row; row <= bottomRight.row; ++row) {
+    for (size_t col = topLeft.col; col <= bottomRight.col; ++col) {
+      map.setAmountAtIndex({col, row}, value);
+    }
+  }
+};
+
+template <size_t COLS, size_t ROWS>
+void World<COLS, ROWS>::addFoodSource(const FoodSource& foodSource) {
+  m_foodSources.emplace_back(foodSource);
+  m_foodSources.back().setFillColor(m_themeManager.foodColor());
+  addSourceToHeatmap(foodSource, m_heatMaps.at(toFood), foodSource.getAmount());
+}
 inline sf::Vector2f randomDirection() {
   std::random_device r;
   std::default_random_engine e1(r());
@@ -215,12 +226,15 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
       m_heatMaps.at(targetMarker).getIndexFromPosition(ant.getPosition());
 
   if (direction != heading) {
-
     // Account for heatmap edges
-    if (antIndexInHeatmap.col == 0) antIndexInHeatmap.col += 1;
-    else if (antIndexInHeatmap.col == COLS - 1) antIndexInHeatmap.col -= 1;
-    if (antIndexInHeatmap.row == 0) antIndexInHeatmap.row += 1;
-    else if (antIndexInHeatmap.row == ROWS - 1) antIndexInHeatmap.row -= 1;
+    if (antIndexInHeatmap.col == 0)
+      antIndexInHeatmap.col += 1;
+    else if (antIndexInHeatmap.col == COLS - 1)
+      antIndexInHeatmap.col -= 1;
+    if (antIndexInHeatmap.row == 0)
+      antIndexInHeatmap.row += 1;
+    else if (antIndexInHeatmap.row == ROWS - 1)
+      antIndexInHeatmap.row -= 1;
 
     // Now that we know in which cardinal direction to go [N, NE, ..., NE]
     // we ask for the adjacent cell in that direction
