@@ -18,8 +18,7 @@ class World {
   std::vector<FoodSource> m_foodSources;
   std::vector<Marker> m_markers;
   sf::Vector2u m_worldSize;
-  //  static constexpr unsigned long COLS = 32 * 8;
-  //  static constexpr unsigned long ROWS = 24 * 8;
+
   std::array<Heatmap<COLS, ROWS>, 2> m_heatMaps;
 
  public:
@@ -30,10 +29,10 @@ class World {
     m_colonies.emplace_back(sf::Vector2f{150.f, 300.f}, 200);
     m_foodSources.emplace_back(100, sf::Vector2f{350.f, 450.f});
     m_foodSources.emplace_back(100, sf::Vector2f{550.f, 100.f});
-    //    m_foodSources.emplace_back(400, sf::Vector2f{550.f, 150.f});
 
-
-    auto addSourceToHeatmap = [](sf::Shape const& source, Heatmap<COLS, ROWS> &map, int value) {
+    // Add food/base marker at sources locations
+    auto addSourceToHeatmap = [](sf::Shape const& source,
+                                 Heatmap<COLS, ROWS>& map, int value) {
       auto minX = source.getGlobalBounds().left;
       auto minY = source.getGlobalBounds().top;
       auto maxX = minX + source.getGlobalBounds().width;
@@ -50,8 +49,9 @@ class World {
     };
 
     int amount = 200;
-    addSourceToHeatmap(m_colonies.back().getAnthill(), m_heatMaps.at(toBase), amount);
-    for (auto &food: m_foodSources)
+    for (auto& colony : m_colonies)
+      addSourceToHeatmap(colony.getAnthill(), m_heatMaps.at(toBase), amount);
+    for (auto& food : m_foodSources)
       addSourceToHeatmap(food, m_heatMaps.at(toFood), amount);
 
     m_heatMaps.at(toFood).setColor(sf::Color::Blue);
@@ -98,6 +98,7 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
     default: {
       // Ant is within the Anthill
       if (colony.getAnthill().getGlobalBounds().contains(ant.getPosition())) {
+        // If we are coming from a food source, then turn back
         if (currentState != noSuccess)
           ant.setDirection(ant.getDirection() * -1.f);
         ant.setState(leavingAnthill);
@@ -111,6 +112,7 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
         // Ant is within the food source
         if (foodSource.getGlobalBounds().contains(ant.getPosition())) {
           ant.setState(returningAnthill);
+          // Come back to where we arrived from
           ant.setDirection(ant.getDirection() * -1.f);
           ant.resetHuntingTimer();
           return;
@@ -120,6 +122,7 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
     }
   }
 
+  // Ops, got lost.
   if (ant.getRemainingTimeToHunt() <= 0) {
     ant.setState(noSuccess);
     ant.resetHuntingTimer();
@@ -129,6 +132,7 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
   // This function returns if the ant is out of screen
   checkBounds(ant);
 
+  // Still check we are within screen view
   if (ant.getPosition().x < 1 ||
       ant.getPosition().x > static_cast<float>(m_worldSize.x) - 1 ||
       ant.getPosition().y < 1 ||
@@ -136,10 +140,9 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
     return;
   }
 
-  auto currentHeatmapIndex =
-      m_heatMaps.at(toFood).getIndexFromPosition(ant.getPosition());
 
-  // Add ant marker
+
+  // Add ant marker only if we did not get lost
   if (ant.getState() != noSuccess) {
     auto dropped = ant.dropMarker();
     m_markers.push_back(dropped);
@@ -147,38 +150,33 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
         .incrementByOneAtPosition(dropped.getPosition());
   }
 
-  // If we are still within the same cell, move randomly until the next one
-  //  if (currentHeatmapIndex == ant.getCurrentHeatmapIndex()) {
-  //    ant.setDirection(ant.getDirection() + randomVector());
-  //    return;
-  //  }
-  ant.setCurrentMapIndex(currentHeatmapIndex);
-
-  // Find the strongest neighbour
-  // Cardinal points order: [N, NE, W, SE, S, SW, W, NW]
-  //                                                          | kernel|
-  // Padded Cardinal neighbours: [N, NE, W, SE, S, SW, W, NW, N, NE, E]
-  //
-  // N = 0°, NE = 45°, E = 90°, SE = 135°, S = 180°, SW = 225°, NW = 315°
-
-  constexpr int kernelSize = 3;
-  std::array<int, 8> neighbours{};
-  std::array<int, 8 + kernelSize> paddedNeighbours{};
-  std::array<HeatmapIndex, 8> neighboursIndexes{};
+  // Choose which mark to follow: if we are leaving the anthill search for food,
+  // in any other case, search for home
   MarkerType targetMarker = currentState == leavingAnthill ? toFood : toBase;
 
+  // Find 8 closest neighbours
+  // Cardinal points order: [N, NE, W, SE, S, SW, W, NW]
+  std::array<int, 8> neighbours{};
+  std::array<HeatmapIndex, 8> neighboursIndexes{};
   m_heatMaps.at(targetMarker)
       .findNeighbours(ant.getPosition(), neighbours, neighboursIndexes);
 
+  // Neighbours padding
+  // We copy the first viewWindow elements at the end to handle window at north
+  // E.g. padded: [N, NE, W, SE, S, SW, W, NW, N, NE, E]
+
+  constexpr int viewWindow = 3;
+  std::array<int, 8 + viewWindow> paddedNeighbours{};
   for (size_t i = 0; i < paddedNeighbours.size(); ++i) {
     paddedNeighbours.at(i) = neighbours.at(i % neighbours.size());
   }
 
-  // Map heading in [0, 360)
+  // Get ant current heading and map it to [0, 360)
   const int currentHeading =
       static_cast<int>(ant.getHeading() + 90 + 360) % 360;
 
   // Sample heading with steps of 45°. Now heading is the index of
+  // N = 0°, NE = 45°, E = 90°, SE = 135°, S = 180°, SW = 225°, NW = 315°
   // cardinal directions: i = 0 -> N; ...; i = 4 -> S; ... i = 7 -> NW;
   int heading = currentHeading / 45;
   assert(heading >= 0 && heading < 8);
@@ -189,63 +187,61 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
 
   int minHeading = heading - 1;  // Min view angle
   int maxHeading = heading + 1;  // Max view angle
-  //  assert(minHeading >= 0 && minHeading < (8 + kernelSize - 1));
-  //  assert(maxHeading >= (kernelSize - 1) && maxHeading < (8 + kernelSize));
+  assert(minHeading >= 0 && minHeading < (8 + viewWindow - 1));
+  assert(maxHeading >= (viewWindow - 1) && maxHeading < (8 + viewWindow));
 
+  // From neighbour sample the three at Front Left, Front and Front Right
   auto FL = paddedNeighbours.at(minHeading);
   auto F = paddedNeighbours.at(heading);
   auto FR = paddedNeighbours.at(maxHeading);
 
+  // Set direction looking forward
   auto direction = heading;
-  std::string s[]{"FL", "F", "FR"};
-  enum LookDirection { frontLeft, front, frontRight };
-  auto look = LookDirection::front;
 
   if (F < FL && F < FR) {
     // Rotate by towards larger of FL and FR
     direction = FL > FR ? minHeading : maxHeading;
-    look = FL > FR ? frontLeft : frontRight;
   } else if (FL > FR) {
     // Rotate left
     direction = minHeading;
-    look = frontLeft;
   } else if (FL < FR) {
     // Rotate right
     direction = maxHeading;
-    look = frontRight;
   }
 
   // Remove padding
   if (direction > 7) direction -= 8;
+  if (heading > 7) heading -= 8;
 
   assert(direction >= 0 && direction < 8);
-  std::string directions[] = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
-  // std::cout << directions[direction] << '\n';
-
   auto antIndexInHeatmap =
       m_heatMaps.at(targetMarker).getIndexFromPosition(ant.getPosition());
 
-  if (antIndexInHeatmap.col == 0) antIndexInHeatmap.col += 1;
-  if (antIndexInHeatmap.row == 0) antIndexInHeatmap.row += 1;
-  if (antIndexInHeatmap.col == COLS - 1) antIndexInHeatmap.col -= 1;
-  if (antIndexInHeatmap.row == ROWS - 1) antIndexInHeatmap.row -= 1;
+  if (direction != heading) {
 
-  if (look != front) {
-    //    std::cout << s[look] << '\n';
+    // Account for heatmap edges
+    if (antIndexInHeatmap.col == 0) antIndexInHeatmap.col += 1;
+    else if (antIndexInHeatmap.col == COLS - 1) antIndexInHeatmap.col -= 1;
+    if (antIndexInHeatmap.row == 0) antIndexInHeatmap.row += 1;
+    else if (antIndexInHeatmap.row == ROWS - 1) antIndexInHeatmap.row -= 1;
+
+    // Now that we know in which cardinal direction to go [N, NE, ..., NE]
+    // we ask for the adjacent cell in that direction
     auto targetIndex = Heatmap<COLS, ROWS>::adjacentFromCardinalDirection(
         antIndexInHeatmap, direction);
 
+    // Get the position of the cell centre
     auto targetPosition =
         m_heatMaps.at(targetMarker).getPositionFromIndex(targetIndex);
-    auto currentDirection = ant.getDirection();
-    auto newDirection = targetPosition - ant.getPosition();
 
+    // Compute new direction
+    auto newDirection = targetPosition - ant.getPosition();
     sf::normalize(newDirection);
     assert(newDirection.x >= -1 && newDirection.x <= 1);
     assert(newDirection.y >= -1 && newDirection.y <= 1);
-//    ant.setDirection(newDirection);
-    assert(!std::isnan(ant.getDirection().x) &&
-           !std::isnan(ant.getDirection().y));
+
+    auto currentDirection = ant.getDirection();
+    // Smooth down the steering velocity
     ant.setDirection(sf::lerp(currentDirection, newDirection, 0.3f));
   }
   ant.setDirection(ant.getDirection() + randomDirection());
