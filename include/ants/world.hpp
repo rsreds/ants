@@ -20,16 +20,40 @@ class World {
   sf::Vector2u m_worldSize;
   //  static constexpr unsigned long COLS = 32 * 8;
   //  static constexpr unsigned long ROWS = 24 * 8;
-  std::array<Heatmap<COLS, ROWS>, MarkerType::allMarkers> m_heatMaps;
+  std::array<Heatmap<COLS, ROWS>, 2> m_heatMaps;
 
  public:
   explicit World(sf::Vector2u const& worldSize)
       : m_worldSize{worldSize},
         m_heatMaps{Heatmap<COLS, ROWS>{worldSize},
                    Heatmap<COLS, ROWS>{worldSize}} {
-    m_colonies.emplace_back(sf::Vector2f{150.f, 300.f}, 100);
+    m_colonies.emplace_back(sf::Vector2f{150.f, 300.f}, 200);
     m_foodSources.emplace_back(100, sf::Vector2f{350.f, 450.f});
-    m_foodSources.emplace_back(400, sf::Vector2f{550.f, 150.f});
+    m_foodSources.emplace_back(100, sf::Vector2f{550.f, 100.f});
+    //    m_foodSources.emplace_back(400, sf::Vector2f{550.f, 150.f});
+
+
+    auto addSourceToHeatmap = [](sf::Shape const& source, Heatmap<COLS, ROWS> &map, int value) {
+      auto minX = source.getGlobalBounds().left;
+      auto minY = source.getGlobalBounds().top;
+      auto maxX = minX + source.getGlobalBounds().width;
+      auto maxY = minY + source.getGlobalBounds().height;
+
+      HeatmapIndex topLeft = map.getIndexFromPosition({minX, minY});
+      HeatmapIndex bottomRight = map.getIndexFromPosition({maxX, maxY});
+
+      for (size_t row = topLeft.row; row <= bottomRight.row; ++row) {
+        for (size_t col = topLeft.col; col <= bottomRight.col; ++col) {
+          map.setAmountAtIndex({col, row}, value);
+        }
+      }
+    };
+
+    int amount = 200;
+    addSourceToHeatmap(m_colonies.back().getAnthill(), m_heatMaps.at(toBase), amount);
+    for (auto &food: m_foodSources)
+      addSourceToHeatmap(food, m_heatMaps.at(toFood), amount);
+
     m_heatMaps.at(toFood).setColor(sf::Color::Blue);
     m_heatMaps.at(toBase).setColor(sf::Color::Red);
   }
@@ -44,7 +68,7 @@ class World {
 
  private:
   void checkBounds(Ant& ant) const;
-  void updateAnt(Colony& colony, Ant& ant);
+  void updateAnt(Colony& colony, Ant& ant, float elapsedTime);
 };
 
 inline sf::Vector2f randomDirection() {
@@ -60,20 +84,24 @@ template <size_t COLS, size_t ROWS>
 inline void World<COLS, ROWS>::updateColonies(float elapsedTime) {
   for (auto& colony : m_colonies)
     for (auto& ant : colony.m_ants) {
-      updateAnt(colony, ant);
+      updateAnt(colony, ant, elapsedTime);
       ant.updatePosition(elapsedTime);
     }
 }
 template <size_t COLS, size_t ROWS>
-inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant) {
-  AntState currentState = ant.getState();
+inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
+                                         float elapsedTime) {
+  ant.tickHuntingTimer(elapsedTime);
 
+  AntState currentState = ant.getState();
   switch (currentState) {
-    case AntState::returningAnthill: {
+    default: {
       // Ant is within the Anthill
       if (colony.getAnthill().getGlobalBounds().contains(ant.getPosition())) {
+        if (currentState != noSuccess)
+          ant.setDirection(ant.getDirection() * -1.f);
         ant.setState(leavingAnthill);
-        ant.setDirection(ant.getDirection() * -1.f);
+        ant.resetHuntingTimer();
         return;
       }
       break;
@@ -84,12 +112,18 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant) {
         if (foodSource.getGlobalBounds().contains(ant.getPosition())) {
           ant.setState(returningAnthill);
           ant.setDirection(ant.getDirection() * -1.f);
-          std::cout << "Rotate!\n";
+          ant.resetHuntingTimer();
           return;
         }
       }
       break;
     }
+  }
+
+  if (ant.getRemainingTimeToHunt() <= 0) {
+    ant.setState(noSuccess);
+    ant.resetHuntingTimer();
+    return;
   }
 
   // This function returns if the ant is out of screen
@@ -102,18 +136,22 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant) {
     return;
   }
 
-  auto currentHeatmapIndex = m_heatMaps.at(toFood).getIndexFromPosition(ant.getPosition());
+  auto currentHeatmapIndex =
+      m_heatMaps.at(toFood).getIndexFromPosition(ant.getPosition());
 
   // Add ant marker
-  auto dropped = ant.dropMarker();
-  m_markers.push_back(dropped);
-  m_heatMaps.at(dropped.getType())
-      .incrementByOneAtPosition(dropped.getPosition());
+  if (ant.getState() != noSuccess) {
+    auto dropped = ant.dropMarker();
+    m_markers.push_back(dropped);
+    m_heatMaps.at(dropped.getType())
+        .incrementByOneAtPosition(dropped.getPosition());
+  }
 
   // If we are still within the same cell, move randomly until the next one
-  if (currentHeatmapIndex == ant.getCurrentHeatmapIndex()) {
-    ant.setDirection(ant.getDirection() + randomDirection());
-    return;}
+  //  if (currentHeatmapIndex == ant.getCurrentHeatmapIndex()) {
+  //    ant.setDirection(ant.getDirection() + randomVector());
+  //    return;
+  //  }
   ant.setCurrentMapIndex(currentHeatmapIndex);
 
   // Find the strongest neighbour
@@ -127,7 +165,7 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant) {
   std::array<int, 8> neighbours{};
   std::array<int, 8 + kernelSize> paddedNeighbours{};
   std::array<HeatmapIndex, 8> neighboursIndexes{};
-  MarkerType targetMarker = ant.getState() == leavingAnthill ? toFood : toBase;
+  MarkerType targetMarker = currentState == leavingAnthill ? toFood : toBase;
 
   m_heatMaps.at(targetMarker)
       .findNeighbours(ant.getPosition(), neighbours, neighboursIndexes);
@@ -149,50 +187,76 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant) {
   // Looking at North
   if (heading == 0) heading += 8;
 
-  int minHeading = heading - 2;  // Min view angle
-  int maxHeading = heading + 2;  // Max view angle
+  int minHeading = heading - 1;  // Min view angle
+  int maxHeading = heading + 1;  // Max view angle
   //  assert(minHeading >= 0 && minHeading < (8 + kernelSize - 1));
   //  assert(maxHeading >= (kernelSize - 1) && maxHeading < (8 + kernelSize));
 
-  // Restrict search only between min and max view angle
-  auto highestMarkerConcentration =
-      std::max_element(paddedNeighbours.begin() + minHeading,
-                       paddedNeighbours.begin() + maxHeading);
+  auto FL = paddedNeighbours.at(minHeading);
+  auto F = paddedNeighbours.at(heading);
+  auto FR = paddedNeighbours.at(maxHeading);
 
-  if (*highestMarkerConcentration > 0) {
-    // Find the cardinal direction index with the highest concentration
-    int direction =
-        static_cast<int>(highestMarkerConcentration - paddedNeighbours.begin());
+  auto direction = heading;
+  std::string s[]{"FL", "F", "FR"};
+  enum LookDirection { frontLeft, front, frontRight };
+  auto look = LookDirection::front;
 
-    // Remove padding
-    if (direction > 7) direction -= 8;
-    assert(direction < 8);
+  if (F < FL && F < FR) {
+    // Rotate by towards larger of FL and FR
+    direction = FL > FR ? minHeading : maxHeading;
+    look = FL > FR ? frontLeft : frontRight;
+  } else if (FL > FR) {
+    // Rotate left
+    direction = minHeading;
+    look = frontLeft;
+  } else if (FL < FR) {
+    // Rotate right
+    direction = maxHeading;
+    look = frontRight;
+  }
 
-    // Find in which heatmap cell the ant is
-    auto antIndexInHeatmap =
-        m_heatMaps.at(targetMarker).getIndexFromPosition(ant.getPosition());
+  // Remove padding
+  if (direction > 7) direction -= 8;
 
+  assert(direction >= 0 && direction < 8);
+  std::string directions[] = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
+  // std::cout << directions[direction] << '\n';
+
+  auto antIndexInHeatmap =
+      m_heatMaps.at(targetMarker).getIndexFromPosition(ant.getPosition());
+
+  if (antIndexInHeatmap.col == 0) antIndexInHeatmap.col += 1;
+  if (antIndexInHeatmap.row == 0) antIndexInHeatmap.row += 1;
+  if (antIndexInHeatmap.col == COLS - 1) antIndexInHeatmap.col -= 1;
+  if (antIndexInHeatmap.row == ROWS - 1) antIndexInHeatmap.row -= 1;
+
+  if (look != front) {
+    //    std::cout << s[look] << '\n';
     auto targetIndex = Heatmap<COLS, ROWS>::adjacentFromCardinalDirection(
         antIndexInHeatmap, direction);
-
-    // Consume by 1 the amount of Marker where the ant is going to
-    m_heatMaps.at(targetMarker).decrementByOneAtIndex(targetIndex);
 
     auto targetPosition =
         m_heatMaps.at(targetMarker).getPositionFromIndex(targetIndex);
     auto currentDirection = ant.getDirection();
     auto newDirection = targetPosition - ant.getPosition();
-    ant.setDirection(sf::lerp(currentDirection, newDirection, 0.7f));
+
+    sf::normalize(newDirection);
+    assert(newDirection.x >= -1 && newDirection.x <= 1);
+    assert(newDirection.y >= -1 && newDirection.y <= 1);
+//    ant.setDirection(newDirection);
+    assert(!std::isnan(ant.getDirection().x) &&
+           !std::isnan(ant.getDirection().y));
+    ant.setDirection(sf::lerp(currentDirection, newDirection, 0.3f));
   }
   ant.setDirection(ant.getDirection() + randomDirection());
-  //  ant.setDirection(90);
 }
 
 template <size_t COLS, size_t ROWS>
 inline void World<COLS, ROWS>::updateMarkers(float elapsedTime) {
   for (auto& m : m_markers) {
+    if (m.getType() == isFood || m.getType() == isBase) continue;
     m.tickLife(elapsedTime);
-    if (m.getRemainingLife() <= 0)
+    if (m.getRemainingLife() <= 0 && (m.getType()))
       m_heatMaps.at(m.getType()).decrementByOneAtPosition(m.getPosition());
   }
 
