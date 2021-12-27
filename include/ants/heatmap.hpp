@@ -52,9 +52,8 @@ class Heatmap : public sf::Drawable {
    */
   explicit Heatmap(sf::Vector2u const& windowSize)
       : m_windowSize{windowSize}{
-    std::cout << m_windowSize.x << ' ' << m_windowSize.y;
-    m_dw = m_windowSize.x / (float)COLS;
-    m_dh = m_windowSize.y / (float)ROWS;
+    m_dw = m_windowSize.x / static_cast<float>(COLS);
+    m_dh = m_windowSize.y / static_cast<float>(ROWS);
   }
 
   void print() const { printMap(m_map); }
@@ -77,6 +76,15 @@ class Heatmap : public sf::Drawable {
     float h = m_windowSize.y / static_cast<float>(ROWS);
     return {static_cast<float>(index.col) * w + w / 2.f,
             static_cast<float>(index.row) * h + h / 2.f};
+  }
+
+  /**
+   * Set value at given index to a desired value
+   * @param index Cell index
+   * @param value Value to be set
+   */
+  void setAmountAtIndex(HeatmapIndex const& index, int value) {
+    m_map.at(index.row).at(index.col) = value;
   }
 
   /**
@@ -192,7 +200,7 @@ class Heatmap : public sf::Drawable {
 
         rect.setOutlineColor({0, 0, 0, 20});
         rect.setOutlineThickness(.5);
-        target.draw(rect);
+        target.draw(rect, states);
       }
     }
   }
