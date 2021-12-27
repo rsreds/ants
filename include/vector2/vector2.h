@@ -8,6 +8,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <cmath>
 #include <iostream>
+#include <random>
 
 namespace sf {
 constexpr float PI = 3.1415926535f;
@@ -82,6 +83,15 @@ template <typename T>
 std::ostream& operator<<(std::ostream& out, const Vector2<T> v) {
   out << "x: " << v.x << ", y: " << v.y;
   return out;
+}
+
+inline sf::Vector2f randomVector(float min, float max) {
+  std::random_device r;
+  std::default_random_engine e1(r());
+  std::uniform_real_distribution<float> uniform_dist(min, max);
+  float r1 = uniform_dist(e1);
+  float r2 = uniform_dist(e1);
+  return {r1, r2};
 }
 }  // namespace sf
 #endif  // VECTOR2_H
