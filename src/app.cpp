@@ -33,7 +33,7 @@ bool App::init() {
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
   // test_ant.setFillColor(m_themeManager.antColor());
   for (auto& colony : m_world.getColonies()) {
-    for (int i = 0; i < 30; ++i) colony.spawn();
+    for (int i = 0; i < m_nAnts; ++i) colony.spawn();
   }
 
   for (auto& foodSource : m_world.getFoodSources()) {
@@ -99,8 +99,8 @@ void App::render() {
   sf::Sprite s(t);
   m_window.draw(s);
 
-  m_window.draw(m_world.getHeatmap(ants::toFood));
-  m_window.draw(m_world.getHeatmap(ants::toBase));
+//  m_window.draw(m_world.getHeatmap(ants::toFood));
+//  m_window.draw(m_world.getHeatmap(ants::toBase));
 
   // Draw Food
   for (auto& foodSource : m_world.getFoodSources()) {
