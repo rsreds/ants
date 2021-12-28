@@ -119,6 +119,7 @@ void App::event() {
         } break;
         default:;
       }
+    default:;
   }
 }
 
