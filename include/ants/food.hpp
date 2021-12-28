@@ -16,6 +16,8 @@ class FoodSource : public sf::CircleShape {
     setRadius(new_radius);
     setOrigin({new_radius, new_radius});
   }
+
+  float getAmount() const { return m_amount; }
 };
 
 }  // namespace ants

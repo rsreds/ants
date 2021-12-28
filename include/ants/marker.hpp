@@ -4,10 +4,15 @@
 #include <vector2/vector2.h>
 
 #include <SFML/Graphics.hpp>
+#include <array>
+#include <cassert>
+#include <iomanip>
+#include <iostream>
 
 namespace ants {
 
-enum MarkerType { toBase, toFood };
+// Keep SIZE as last element to compute how big the enum is
+enum MarkerType { toBase, toFood, isBase, isFood };
 
 class Marker : public sf::Transformable {
  private:
@@ -16,7 +21,7 @@ class Marker : public sf::Transformable {
 
  public:
   Marker() : m_type{}, m_remainingLife(0){};
-  Marker(sf::Vector2f pos, MarkerType type, float remainingLife = 100.f)
+  Marker(sf::Vector2f pos, MarkerType type, float remainingLife = 75.f)
       : m_type(type), m_remainingLife(remainingLife) {
     setPosition(pos);
   }

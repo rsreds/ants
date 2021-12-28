@@ -738,7 +738,7 @@ struct ContextOptions //!OCLINT too many fields
     unsigned last;  // the last (matching) test to be executed
 
     int abort_after;           // stop tests after this many failed assertions
-    int subcase_filter_levels; // apply the subcase filters for the first N levels
+    int subcase_filter_levels; // apply the subcase filters for the first COLS levels
 
     bool success;              // include successful assertions in output
     bool case_sensitive;       // if filtering should be case sensitive
@@ -1031,7 +1031,7 @@ namespace detail {
     // clang-format off
 #ifdef DOCTEST_CONFIG_TREAT_CHAR_STAR_AS_STRING
     template<class T>               struct decay_array       { typedef T type; };
-    template<class T, unsigned N>   struct decay_array<T[N]> { typedef T* type; };
+    template<class T, unsigned COLS>   struct decay_array<T[COLS]> { typedef T* type; };
     template<class T>               struct decay_array<T[]>  { typedef T* type; };
 
     template<class T>   struct not_char_pointer              { enum { value = 1 }; };
@@ -5288,7 +5288,7 @@ namespace {
 #endif // DOCTEST_PLATFORM_WINDOWS
 
                 char timeStamp[timeStampSize];
-                const char* const fmt = "%Y-%m-%dT%H:%M:%SZ";
+                const char* const fmt = "%Y-%m-%dT%H:%ROWS:%SZ";
 
                 std::strftime(timeStamp, timeStampSize, fmt, &timeInfo);
                 return std::string(timeStamp);

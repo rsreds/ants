@@ -15,3 +15,9 @@ add_executable(test_spawning test_spawning.cpp ../src/ant.cpp)
 target_include_directories(test_spawning PRIVATE ../include)
 target_link_libraries(test_spawning sfml-graphics)
 add_test(Spawn test_spawning)
+
+add_executable(test_heatmap test_heatmap.cpp)
+target_include_directories(test_heatmap PRIVATE ../include)
+target_link_libraries(test_heatmap sfml-graphics)
+
+add_test(Heatmap test_heatmap)

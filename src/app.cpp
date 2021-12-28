@@ -1,12 +1,14 @@
 #include <ants/app.hpp>
 #include <iostream>
 
-App::App(int screenWidth, int screenHeight)
+App::App(uint screenWidth, uint screenHeight)
     : m_window(sf::VideoMode(screenWidth, screenHeight), "Ants"),
-      m_world{{screenWidth, screenHeight}}{
+      elapsedTime{0},
+      m_world{{WIDTH, HEIGHT}, m_themeManager} {
   m_window.setVerticalSyncEnabled(true);
-
-  m_themeManager.applyTheme(GUI::Theme::Type::polar);
+  sf::FloatRect area(0, 0, WIDTH, HEIGHT);
+  m_window.setView(sf::View(area));
+  m_themeManager.applyTheme(GUI::Theme::Type::polarDark);
 }
 
 int App::run() {
@@ -31,11 +33,7 @@ bool App::init() {
   m_themeManager.applyTheme(GUI::Theme::Type::polar);
   // test_ant.setFillColor(m_themeManager.antColor());
   for (auto& colony : m_world.getColonies()) {
-    for (int i = 0; i < 20; ++i) colony.spawn();
-  }
-
-  for (auto& foodSource : m_world.getFoodSources()) {
-    foodSource.setFillColor(m_themeManager.foodColor());
+    for (int i = 0; i < m_nAnts; ++i) colony.spawn();
   }
 
   return true;
@@ -47,29 +45,88 @@ void App::event() {
     case sf::Event::Closed:
       m_window.close();
       break;
+    case sf::Event::MouseButtonPressed:
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        sf::Vector2f mousePos =
+            static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window));
+        mousePos.x *= static_cast<float>(WIDTH) /
+                      static_cast<float>(m_window.getSize().x);
+        mousePos.y *= static_cast<float>(HEIGHT) /
+                      static_cast<float>(m_window.getSize().y);
+        m_world.addFoodSource({100, mousePos});
+        std::cout << "Add source food\n";
+      }
+      break;
+    case sf::Event::KeyPressed:
+      switch (m_event.key.code) {
+          // Show/Hide heatmap
+        case sf::Keyboard::Key::H: {
+          m_showHeatmap = !m_showHeatmap;
+          if (m_showHeatmap)
+            std::cout << "Show heatmap\n";
+          else
+            std::cout << "Hide heatmap\n";
+        } break;
+          // Reset scene
+        case sf::Keyboard::Key::X: {
+          m_world.reset();
+          for (auto& colony : m_world.getColonies()) {
+            for (int i = 0; i < m_nAnts; ++i) colony.spawn();
+          }
+          std::cout << "Reset scene\n";
+        } break;
+          // Up arrow key
+        case sf::Keyboard::Key::Up: {
+          // Increase markers lifetime
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+            m_world.setMarkersLifetime(m_world.getMarkersLifetime() + 10.0f);
+            std::cout << "Markers lifetime: " << m_world.getMarkersLifetime()
+                      << '\n';
+          }
+          // Increase ants hunting timeout
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::T)) {
+            m_world.setHuntingTimeout(m_world.getHuntingTimeout() + 5.0f);
+            std::cout << "Ants hunting timeout: " << m_world.getHuntingTimeout()
+                      << '\n';
+          }
+          // Increase randomness
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
+            m_world.setRandomness(std::min(m_world.getRandomness() + 0.1f, 1.0f));
+            std::cout << "Ants randomness: " << m_world.getRandomness() << '\n';
+          }
+        } break;
+          // Down key
+        case sf::Keyboard::Key::Down: {
+          // Decrease markers lifetime
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+            m_world.setMarkersLifetime(
+                std::max(0.0f, m_world.getMarkersLifetime() - 10));
+            std::cout << "Markers lifetime: " << m_world.getMarkersLifetime()
+                      << '\n';
+          }
+          // Decrease ants hunting timeout
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::T)) {
+            m_world.setHuntingTimeout(
+                std::max(0.0f, m_world.getHuntingTimeout() - 5.0f));
+            std::cout << "Ants hunting timeout: " << m_world.getHuntingTimeout()
+                     << '\n';
+          }
+          // Decrease randomness
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
+            m_world.setRandomness(std::max(m_world.getRandomness() - 0.1f, 0.f));
+            std::cout << "Ants randomness: " << m_world.getRandomness() << '\n';
+          }
+        } break;
+        default:;
+      }
     default:;
   }
 }
 
 void App::loop() {
   // Update game logic
-  for (auto& it : m_world.getMarkers()) {
-    it.tickLife(elapsedTime);
-  }
-
-  // Workaround to fix segfault erasing last element
-  m_world.getMarkers().erase(
-      std::remove_if(
-          m_world.getMarkers().begin(), m_world.getMarkers().end(),
-          [](const ants::Marker& m) { return m.getRemainingLife() <= 0; }),
-      m_world.getMarkers().end());
-
-  for (auto& colony : m_world.getColonies())
-    for (auto& ant : colony.m_ants) {
-      m_world.updateAnt(colony, ant);
-      ant.updatePosition(elapsedTime, m_window.getSize());
-      ant.mark(m_world.getMarkers());
-    }
+  m_world.updateMarkers(elapsedTime);
+  m_world.updateColonies(elapsedTime);
 }
 
 void App::render() {
@@ -87,9 +144,22 @@ void App::render() {
 
     // If marker is outside visible window don't draw it
     if (xPos <= 0 || xPos >= (int)m_window.getSize().x || yPos <= 0 ||
-        yPos >= (int)m_window.getSize().y) continue;
+        yPos >= (int)m_window.getSize().y)
+      continue;
 
-    sf::Color color = sf::Color::Red;
+    sf::Color color;
+    switch (marker.getType()) {
+      case ants::toBase:
+        color = sf::Color::Red;
+        break;
+      case ants::toFood:
+        color = sf::Color::Blue;
+        break;
+      default:
+        color = sf::Color::Magenta;
+        break;
+    }
+
     color.a = static_cast<uint8_t>(marker.getRemainingLife());
     markersMap.setPixel(xPos, yPos, color);
   }
@@ -99,6 +169,10 @@ void App::render() {
   sf::Sprite s(t);
   m_window.draw(s);
 
+  if (m_showHeatmap) {
+    m_window.draw(m_world.getHeatmap(ants::toBase));
+    m_window.draw(m_world.getHeatmap(ants::toFood));
+  }
   // Draw Food
   for (auto& foodSource : m_world.getFoodSources()) {
     m_window.draw(foodSource);

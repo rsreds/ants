@@ -4,10 +4,16 @@
 #include <random>
 
 namespace ants {
-Ant::Ant(sf::Vector2f pos) { setPosition(pos); }
+Ant::Ant(sf::Vector2f pos) {
+  setPosition(pos);
+  setDirection(sf::randomVector(-1, 1));
+}
 
 void Ant::setFillColor(const sf::Color& c) { m_color = c; }
 
+void Ant::setCurrentMapIndex(const HeatmapIndex& index) {
+  m_currentMapIndex = index;
+}
 void Ant::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   states.transform *= getTransform();
   float radius = 3;
@@ -32,36 +38,71 @@ void Ant::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 sf::Vector2f Ant::getDirection() const { return m_direction; }
+float Ant::getHeading() const {
+  return sf::rad2deg(std::atan2(m_direction.y, m_direction.x));
+}
 AntState Ant::getState() const { return m_state; }
 float Ant::getSpeed() const { return m_speed; }
+HeatmapIndex Ant::getCurrentHeatmapIndex() const { return m_currentMapIndex; }
+float Ant::getRemainingTimeToHunt() const { return m_remainingTimeToHunt; }
+
+float Ant::getRandomness() const { return m_randomness; }
+
+// Setters
 void Ant::setState(AntState const& state) { m_state = state; }
+
+void Ant::setRandomness(const float rnd) {
+  assert(rnd >= 0 && rnd <= 1);
+  m_randomness = rnd;
+}
+
+void Ant::setDirection(float angle) {
+  setRotation(angle);
+  auto rad = sf::deg2rad(angle);
+  m_direction.x = cos(rad);
+  m_direction.y = sin(rad);
+}
+
 void Ant::setDirection(sf::Vector2f const& dir) {
   auto newAngle = sf::rad2deg(std::atan2(m_direction.y, m_direction.x));
   setRotation(newAngle);
   m_direction = sf::normalizeCopy(dir);
 }
+
 void Ant::setDirection(Marker const& marker) {
   setDirection(marker.getPosition());
 }
 
 void Ant::setSpeed(float const& spd) { m_speed = spd; }
 
-void Ant::updatePosition(float const& elapsedTime, sf::Vector2u const& bounds) {
+void Ant::updatePosition(float const& elapsedTime) {
+  setDirection({m_direction + sf::randomVector(-m_randomness, m_randomness)});
   sf::Vector2f velocity{m_direction};
   sf::setMagnitude(velocity, m_speed);
-//  setPosition(getPosition() + velocity * elapsedTime);
+  //  setPosition(getPosition() + velocity * elapsedTime);
   move(velocity * elapsedTime);
-
 }
 
-void Ant::mark(std::vector<ants::Marker>& markers) {
+Marker Ant::dropMarker(float lifetime) {
   switch (m_state) {
-    case AntState::leavingAnthill:
-      markers.emplace_back(getPosition(), ants::MarkerType::toBase);
-      break;
+    case AntState::returningAnthill:
+      return {getPosition(), ants::MarkerType::toFood, lifetime};
 
     default:
-      break;
+      return {getPosition(), ants::MarkerType::toBase, lifetime};
   }
+}
+
+void Ant::resetHuntingTimer() {
+  m_remainingTimeToHunt = m_huntingTimeout;
+}
+
+void Ant::setHuntingTimeout(float timeout) {
+  m_huntingTimeout = timeout;
+  resetHuntingTimer();
+}
+
+void Ant::tickHuntingTimer(const float elapsedTime) {
+  m_remainingTimeToHunt -= elapsedTime * 10;
 }
 }  // namespace ants

@@ -5,9 +5,10 @@
 namespace ants {
 class Anthill : public sf::CircleShape {
  public:
-  Anthill(sf::Vector2f pos) {
+  explicit Anthill(sf::Vector2f pos, float radius = 20.0f) {
     setPosition(pos);
-    setRadius(10);
+    setRadius(radius);
+    setOrigin({radius, radius});
   }
 };
 }  // namespace ants
