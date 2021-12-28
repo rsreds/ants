@@ -293,7 +293,7 @@ inline void World<COLS, ROWS>::updateMarkers(float elapsedTime) {
   for (auto& m : m_markers) {
     if (m.getType() == isFood || m.getType() == isBase) continue;
     m.tickLife(elapsedTime);
-    if (m.getRemainingLife() <= 0 && (m.getType()))
+    if (m.getRemainingLife() <= 0)
       m_heatMaps.at(m.getType()).decrementByOneAtPosition(m.getPosition());
   }
 
