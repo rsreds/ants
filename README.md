@@ -12,9 +12,9 @@ brew install cmake sfml
 sudo apt install cmake libsfml-dev
 ```
 
-## Build and Run
+## Build
 
-### 1.1 Compile with CMake
+### Compile with CMake
 ```bash
 # Change working directory to this repository 
 cd ants
@@ -27,7 +27,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ../
 cmake --build . -j4 --target Ants
 ```
 
-### 1.2 Compile without CMake (GCC only)
+### Compile without CMake (GCC only)
 
 ```bash
 mkdir build
@@ -35,8 +35,17 @@ cd build
 g++ ../main.cpp ../src/*.cpp -I../include -lsfml-graphics -lsfml-window -lsfml-system -std=c++17 -o Ants
 ```
 
-### 2. Run
+## Run
 
 ```bash
 ./Ants
 ```
+
+## Keys
+| Control                   | Action                                 |
+|---------------------------|----------------------------------------|
+| **LMB** (LeftMouseButton) | Add food source at mouse location      |
+| **H**                     | Show/Hide Heatmap                      |
+| **M + Arrow Up/Down**     | Increase/decrease markers lifetime     |
+| **T + Arrow Up/Down**     | Increase/decrease ants hunting timeout |
+
