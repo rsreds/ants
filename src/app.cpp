@@ -54,20 +54,42 @@ void App::event() {
         mousePos.y *= static_cast<float>(HEIGHT) /
                       static_cast<float>(m_window.getSize().y);
         m_world.addFoodSource({100, mousePos});
+        std::cout << "Add source food\n";
       }
       break;
     case sf::Event::KeyPressed:
-      // Show/Hide heatmap
-      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::H)) {
-        m_showHeatmap = !m_showHeatmap;
-        // Reset
-      } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
-        m_world.reset();
-        for (auto& colony : m_world.getColonies()) {
-          for (int i = 0; i < m_nAnts; ++i) colony.spawn();
-        }
+      switch (m_event.key.code) {
+          // Show/Hide heatmap
+        case sf::Keyboard::Key::H: {
+          m_showHeatmap = !m_showHeatmap;
+          if (m_showHeatmap)
+            std::cout << "Hide heatmap\n";
+          else
+            std::cout << "Show heatmap\n";
+        } break;
+        case sf::Keyboard::Key::R: {
+          m_world.reset();
+          for (auto& colony : m_world.getColonies()) {
+            for (int i = 0; i < m_nAnts; ++i) colony.spawn();
+          }
+          std::cout << "Reset scene\n";
+        } break;
+        case sf::Keyboard::Key::Up:
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+            m_world.setMarkersLifetime(m_world.getMarkersLifetime() + 10.0f);
+            std::cout << "Markers life time: " << m_world.getMarkersLifetime()
+                      << '\n';
+          }
+          break;
+        case sf::Keyboard::Key::Down:
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+            m_world.setMarkersLifetime(
+                std::max(0.0f, m_world.getMarkersLifetime() - 10));
+            std::cout << "Markers life time: " << m_world.getMarkersLifetime()
+                      << '\n';
+          }
+        default:;
       }
-    default:;
   }
 }
 

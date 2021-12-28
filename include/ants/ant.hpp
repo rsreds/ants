@@ -37,7 +37,7 @@ class Ant : public sf::Drawable, public sf::Transformable {
   void setFillColor(const sf::Color& c);
   void setCurrentMapIndex(const HeatmapIndex &index);
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-  ants::Marker dropMarker();
+  Marker dropMarker(float lifetime);
   void resetHuntingTimer();
   void tickHuntingTimer(float elapsedTime);
 };

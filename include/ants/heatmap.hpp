@@ -197,7 +197,7 @@ class Heatmap : public sf::Drawable {
         auto rect = sf::RectangleShape{{m_dw, m_dh}};
         rect.setPosition((x - 1) * m_dw, (y - 1) * m_dh);
         auto c = m_color;
-        c.a = getValueAtIndex({x - 1, y - 1}) * 0.1;
+        c.a = getValueAtIndex({x - 1, y - 1}) * 0.25;
         rect.setFillColor(c);
 
         rect.setOutlineColor({0, 0, 0, 20});

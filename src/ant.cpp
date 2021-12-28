@@ -75,13 +75,13 @@ void Ant::updatePosition(float const& elapsedTime) {
   move(velocity * elapsedTime);
 }
 
-Marker Ant::dropMarker() {
+Marker Ant::dropMarker(float lifetime) {
   switch (m_state) {
     case AntState::returningAnthill:
-      return {getPosition(), ants::MarkerType::toFood};
+      return {getPosition(), ants::MarkerType::toFood, lifetime};
 
     default:
-      return {getPosition(), ants::MarkerType::toBase};
+      return {getPosition(), ants::MarkerType::toBase, lifetime};
   }
 }
 

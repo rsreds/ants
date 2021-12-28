@@ -17,8 +17,10 @@ class World {
   std::vector<Colony> m_colonies;
   std::vector<FoodSource> m_foodSources;
   std::vector<Marker> m_markers;
+
   sf::Vector2u m_worldSize;
   GUI::ThemeManager &m_themeManager;
+  float m_markersLifetime = 100.0f;
 
   std::array<Heatmap<COLS, ROWS>, 2> m_heatMaps;
 
@@ -45,6 +47,8 @@ class World {
   Heatmap<COLS, ROWS>& getHeatmap(const MarkerType type) {
     return m_heatMaps.at(type);
   }
+  [[nodiscard]] float getMarkersLifetime() const { return m_markersLifetime; }
+  void setMarkersLifetime(float lifeTime) { m_markersLifetime = lifeTime; }
   void updateColonies(float elapsedTime);
   void updateMarkers(float elapsedTime);
   void addFoodSource(const FoodSource& foodSource);
@@ -163,12 +167,19 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
     return;
   }
 
+  // We don't care which map use to get ant's index
+  auto antIndexInHeatmap =
+      m_heatMaps.at(toFood).getIndexFromPosition(ant.getPosition());
+
   // Add ant marker only if we did not get lost
   if (ant.getState() != noSuccess) {
-    auto dropped = ant.dropMarker();
+    auto dropped = ant.dropMarker(m_markersLifetime);
     m_markers.push_back(dropped);
-    m_heatMaps.at(dropped.getType())
-        .incrementByOneAtPosition(dropped.getPosition());
+    auto cellValue = m_heatMaps.at(dropped.getType()).getValueAtIndex(antIndexInHeatmap);
+    if (cellValue < 2550) {
+      m_heatMaps.at(dropped.getType())
+          .incrementByOneAtPosition(dropped.getPosition());
+    }
   }
 
   // Choose which mark to follow: if we are leaving the anthill search for food,
@@ -234,8 +245,6 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
   if (heading > 7) heading -= 8;
 
   assert(direction >= 0 && direction < 8);
-  auto antIndexInHeatmap =
-      m_heatMaps.at(targetMarker).getIndexFromPosition(ant.getPosition());
 
   if (direction != heading) {
     // Account for heatmap edges
