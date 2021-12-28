@@ -80,7 +80,7 @@ void App::event() {
           // Increase markers lifetime
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
             m_world.setMarkersLifetime(m_world.getMarkersLifetime() + 10.0f);
-            std::cout << "Markers life time: " << m_world.getMarkersLifetime()
+            std::cout << "Markers lifetime: " << m_world.getMarkersLifetime()
                       << '\n';
           }
           // Increase ants hunting timeout
@@ -101,7 +101,7 @@ void App::event() {
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
             m_world.setMarkersLifetime(
                 std::max(0.0f, m_world.getMarkersLifetime() - 10));
-            std::cout << "Markers life time: " << m_world.getMarkersLifetime()
+            std::cout << "Markers lifetime: " << m_world.getMarkersLifetime()
                       << '\n';
           }
           // Decrease ants hunting timeout
@@ -169,8 +169,8 @@ void App::render() {
   m_window.draw(s);
 
   if (m_showHeatmap) {
-    m_window.draw(m_world.getHeatmap(ants::toFood));
     m_window.draw(m_world.getHeatmap(ants::toBase));
+    m_window.draw(m_world.getHeatmap(ants::toFood));
   }
   // Draw Food
   for (auto& foodSource : m_world.getFoodSources()) {

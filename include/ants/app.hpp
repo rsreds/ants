@@ -12,7 +12,7 @@ class App {
   sf::RenderWindow m_window;
   sf::Clock clock;
   float elapsedTime{};
-  ants::World<64, 48> m_world;
+  ants::World<32, 24> m_world;
   const int m_nAnts = 200;
   bool m_showHeatmap = false;
   GUI::ThemeManager m_themeManager;

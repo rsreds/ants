@@ -12,7 +12,7 @@ enum AntState { leavingAnthill, returningAnthill, noSuccess};
 
 class Ant : public sf::Drawable, public sf::Transformable {
  private:
-  float m_speed = 150;
+  float m_speed = 300;
   sf::Vector2f m_direction;
   sf::Color m_color;
   AntState m_state = AntState::leavingAnthill;
