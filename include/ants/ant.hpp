@@ -11,14 +11,14 @@ namespace ants {
 enum AntState { leavingAnthill, returningAnthill, noSuccess};
 
 class Ant : public sf::Drawable, public sf::Transformable {
-  static constexpr float huntingTimeout = 100.0f;
  private:
   float m_speed = 150;
   sf::Vector2f m_direction;
   sf::Color m_color;
   AntState m_state = AntState::leavingAnthill;
   HeatmapIndex m_currentMapIndex{0, 0};
-  float m_remainingTimeToHunt = huntingTimeout;
+  float m_huntingTimeout = 100;
+  float m_remainingTimeToHunt = m_huntingTimeout;
 
  public:
   explicit Ant(sf::Vector2f pos);
@@ -39,6 +39,7 @@ class Ant : public sf::Drawable, public sf::Transformable {
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
   Marker dropMarker(float lifetime);
   void resetHuntingTimer();
+  void setHuntingTimeout(float timeout);
   void tickHuntingTimer(float elapsedTime);
 };
 }  // namespace ants

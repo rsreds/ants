@@ -67,6 +67,7 @@ void App::event() {
           else
             std::cout << "Show heatmap\n";
         } break;
+          // Reset scene
         case sf::Keyboard::Key::R: {
           m_world.reset();
           for (auto& colony : m_world.getColonies()) {
@@ -74,20 +75,38 @@ void App::event() {
           }
           std::cout << "Reset scene\n";
         } break;
-        case sf::Keyboard::Key::Up:
+          // Up arrow key
+        case sf::Keyboard::Key::Up: {
+          // Increase markers lifetime
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
             m_world.setMarkersLifetime(m_world.getMarkersLifetime() + 10.0f);
             std::cout << "Markers life time: " << m_world.getMarkersLifetime()
                       << '\n';
           }
-          break;
-        case sf::Keyboard::Key::Down:
+          // Increase ants hunting timeout
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::T)) {
+            m_world.setHuntingTimeout(m_world.getHuntingTimeout() + 5.0f);
+            std::cout << "Ants hunting timeout: " << m_world.getHuntingTimeout()
+                      << '\n';
+          }
+        } break;
+          // Down key
+        case sf::Keyboard::Key::Down: {
+          // Decrease markers lifetime
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
             m_world.setMarkersLifetime(
                 std::max(0.0f, m_world.getMarkersLifetime() - 10));
             std::cout << "Markers life time: " << m_world.getMarkersLifetime()
                       << '\n';
           }
+          // Decrease ants hunting timeout
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::T)) {
+            m_world.setHuntingTimeout(
+                std::max(0.0f, m_world.getHuntingTimeout() - 5.0f));
+            std::cout << "Ants hunting timeout: " << m_world.getHuntingTimeout()
+                     << '\n';
+          }
+        } break;
         default:;
       }
   }

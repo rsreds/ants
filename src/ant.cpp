@@ -86,7 +86,12 @@ Marker Ant::dropMarker(float lifetime) {
 }
 
 void Ant::resetHuntingTimer() {
-  m_remainingTimeToHunt = huntingTimeout;
+  m_remainingTimeToHunt = m_huntingTimeout;
+}
+
+void Ant::setHuntingTimeout(float timeout) {
+  m_huntingTimeout = timeout;
+  resetHuntingTimer();
 }
 
 void Ant::tickHuntingTimer(const float elapsedTime) {

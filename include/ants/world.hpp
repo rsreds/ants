@@ -21,6 +21,7 @@ class World {
   sf::Vector2u m_worldSize;
   GUI::ThemeManager &m_themeManager;
   float m_markersLifetime = 100.0f;
+  float m_huntingTimeout = 50.0f;
 
   std::array<Heatmap<COLS, ROWS>, 2> m_heatMaps;
 
@@ -49,6 +50,8 @@ class World {
   }
   [[nodiscard]] float getMarkersLifetime() const { return m_markersLifetime; }
   void setMarkersLifetime(float lifeTime) { m_markersLifetime = lifeTime; }
+  [[nodiscard]] float getHuntingTimeout() const { return m_huntingTimeout; }
+  void setHuntingTimeout(float timeout) { m_huntingTimeout = timeout; }
   void updateColonies(float elapsedTime);
   void updateMarkers(float elapsedTime);
   void addFoodSource(const FoodSource& foodSource);
@@ -152,7 +155,7 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
   // Ops, got lost.
   if (ant.getRemainingTimeToHunt() <= 0) {
     ant.setState(noSuccess);
-    ant.resetHuntingTimer();
+    ant.setHuntingTimeout(m_huntingTimeout);
     return;
   }
 
