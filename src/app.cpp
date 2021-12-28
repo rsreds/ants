@@ -63,9 +63,9 @@ void App::event() {
         case sf::Keyboard::Key::H: {
           m_showHeatmap = !m_showHeatmap;
           if (m_showHeatmap)
-            std::cout << "Hide heatmap\n";
-          else
             std::cout << "Show heatmap\n";
+          else
+            std::cout << "Hide heatmap\n";
         } break;
           // Reset scene
         case sf::Keyboard::Key::X: {
