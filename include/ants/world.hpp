@@ -19,7 +19,7 @@ class World {
   std::vector<Marker> m_markers;
 
   sf::Vector2u m_worldSize;
-  GUI::ThemeManager &m_themeManager;
+  GUI::ThemeManager& m_themeManager;
   float m_markersLifetime = 100.0f;
   float m_huntingTimeout = 100.0f;
   float m_randomness = 0.1f;
@@ -27,12 +27,12 @@ class World {
   std::array<Heatmap<COLS, ROWS>, 2> m_heatMaps;
 
  public:
-  explicit World(sf::Vector2u const& worldSize, GUI::ThemeManager &themeManager)
+  explicit World(sf::Vector2u const& worldSize, GUI::ThemeManager& themeManager)
       : m_worldSize{worldSize},
         m_themeManager{themeManager},
         m_heatMaps{Heatmap<COLS, ROWS>{worldSize},
                    Heatmap<COLS, ROWS>{worldSize}} {
-    m_colonies.emplace_back(sf::Vector2f{150.f, 300.f}, 200);
+    m_colonies.emplace_back(static_cast<sf::Vector2f>(m_worldSize) * 0.5f, 200);
 
     int amount = 10'000;
     for (auto& colony : m_colonies)
@@ -91,14 +91,14 @@ template <size_t COLS, size_t ROWS>
 void World<COLS, ROWS>::addFoodSource(const FoodSource& foodSource) {
   m_foodSources.emplace_back(foodSource);
   m_foodSources.back().setFillColor(m_themeManager.foodColor());
-  addSourceToHeatmap(foodSource, m_heatMaps.at(toFood), foodSource.getAmount() * 100);
+  addSourceToHeatmap(foodSource, m_heatMaps.at(toFood),
+                     foodSource.getAmount() * 100);
 }
 
 template <size_t COLS, size_t ROWS>
 void World<COLS, ROWS>::reset() {
   m_foodSources.clear();
-  for (auto &colony : m_colonies)
-    colony.m_ants.clear();
+  for (auto& colony : m_colonies) colony.m_ants.clear();
   m_markers.clear();
   m_heatMaps.at(toFood).clear();
   m_heatMaps.at(toBase).clear();
@@ -107,9 +107,8 @@ void World<COLS, ROWS>::reset() {
 template <size_t COLS, size_t ROWS>
 void World<COLS, ROWS>::setRandomness(float rnd) {
   m_randomness = rnd;
-  for (auto &colony : m_colonies) {
-    for (auto &ant : colony.m_ants)
-      ant.setRandomness(rnd);
+  for (auto& colony : m_colonies) {
+    for (auto& ant : colony.m_ants) ant.setRandomness(rnd);
   }
 }
 
@@ -187,8 +186,9 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
   if (ant.getState() != noSuccess) {
     auto dropped = ant.dropMarker(m_markersLifetime);
     m_markers.push_back(dropped);
-    auto cellValue = m_heatMaps.at(dropped.getType()).getValueAtIndex(antIndexInHeatmap);
-    if (cellValue < 2550) {
+    auto cellValue =
+        m_heatMaps.at(dropped.getType()).getValueAtIndex(antIndexInHeatmap);
+    if (cellValue < 255) {
       m_heatMaps.at(dropped.getType())
           .incrementByOneAtPosition(dropped.getPosition());
     }
@@ -257,35 +257,35 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
   if (heading > 7) heading -= 8;
 
   assert(direction >= 0 && direction < 8);
+  // If resulting direction is the same as current don't do anything
+  if (direction == heading) return;
 
-  if (direction != heading) {
-    // Account for heatmap edges
-    if (antIndexInHeatmap.col == 0)
-      antIndexInHeatmap.col += 1;
-    else if (antIndexInHeatmap.col == COLS - 1)
-      antIndexInHeatmap.col -= 1;
-    if (antIndexInHeatmap.row == 0)
-      antIndexInHeatmap.row += 1;
-    else if (antIndexInHeatmap.row == ROWS - 1)
-      antIndexInHeatmap.row -= 1;
+  // Account for heatmap edges
+  if (antIndexInHeatmap.col == 0)
+    antIndexInHeatmap.col += 1;
+  else if (antIndexInHeatmap.col == COLS - 1)
+    antIndexInHeatmap.col -= 1;
+  if (antIndexInHeatmap.row == 0)
+    antIndexInHeatmap.row += 1;
+  else if (antIndexInHeatmap.row == ROWS - 1)
+    antIndexInHeatmap.row -= 1;
 
-    // Now that we know in which cardinal direction to go [N, NE, ..., NE]
-    // we ask for the adjacent cell in that direction
-    auto targetIndex = Heatmap<COLS, ROWS>::adjacentFromCardinalDirection(
-        antIndexInHeatmap, direction);
+  // Now that we know in which cardinal direction to go [N, NE, ..., NE]
+  // we ask for the adjacent cell in that direction
+  auto targetIndex = Heatmap<COLS, ROWS>::adjacentFromCardinalDirection(
+      antIndexInHeatmap, direction);
 
-    // Get the position of the cell centre
-    auto targetPosition =
-        m_heatMaps.at(targetMarker).getPositionFromIndex(targetIndex);
+  // Get the position of the cell centre
+  auto targetPosition =
+      m_heatMaps.at(targetMarker).getPositionFromIndex(targetIndex);
 
-    // Compute new direction
-    auto newDirection = targetPosition - ant.getPosition();
-    sf::normalize(newDirection);
+  // Compute new direction
+  auto newDirection = targetPosition - ant.getPosition();
+  sf::normalize(newDirection);
 
-    auto currentDirection = ant.getDirection();
-    // Smooth down the steering velocity
-    ant.setDirection(sf::lerp(currentDirection, newDirection, 0.3f));
-  }
+  auto currentDirection = ant.getDirection();
+  // Smooth down the steering velocity
+  ant.setDirection(sf::lerp(currentDirection, newDirection, 0.3f));
 }
 
 template <size_t COLS, size_t ROWS>
@@ -328,7 +328,7 @@ inline void World<COLS, ROWS>::checkBounds(Ant& ant) const {
     return;
   } else if (y >= static_cast<float>(m_worldSize.y) - margin) {
     currentDirection.y -= turnFactor;
-    ant.setDirection(currentDirection);
+    ant.setDirection(currentDirection + sf::randomVector(-m_randomness, m_randomness));
     return;
   }
 }
