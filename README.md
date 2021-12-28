@@ -46,6 +46,7 @@ g++ ../main.cpp ../src/*.cpp -I../include -lsfml-graphics -lsfml-window -lsfml-s
 |---------------------------|----------------------------------------|
 | **LMB** (LeftMouseButton) | Add food source at mouse location      |
 | **H**                     | Show/Hide Heatmap                      |
+| **R**                     | Reset simulation                       |
 | **M + Arrow Up/Down**     | Increase/decrease markers lifetime     |
 | **T + Arrow Up/Down**     | Increase/decrease ants hunting timeout |
 
