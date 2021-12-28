@@ -46,8 +46,15 @@ float Ant::getSpeed() const { return m_speed; }
 HeatmapIndex Ant::getCurrentHeatmapIndex() const { return m_currentMapIndex; }
 float Ant::getRemainingTimeToHunt() const { return m_remainingTimeToHunt; }
 
+float Ant::getRandomness() const { return m_randomness; }
+
 // Setters
 void Ant::setState(AntState const& state) { m_state = state; }
+
+void Ant::setRandomness(const float rnd) {
+  assert(rnd >= 0 && rnd <= 1);
+  m_randomness = rnd;
+}
 
 void Ant::setDirection(float angle) {
   setRotation(angle);
@@ -69,6 +76,7 @@ void Ant::setDirection(Marker const& marker) {
 void Ant::setSpeed(float const& spd) { m_speed = spd; }
 
 void Ant::updatePosition(float const& elapsedTime) {
+  setDirection({m_direction + sf::randomVector(-m_randomness, m_randomness)});
   sf::Vector2f velocity{m_direction};
   sf::setMagnitude(velocity, m_speed);
   //  setPosition(getPosition() + velocity * elapsedTime);

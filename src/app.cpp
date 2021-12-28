@@ -68,7 +68,7 @@ void App::event() {
             std::cout << "Show heatmap\n";
         } break;
           // Reset scene
-        case sf::Keyboard::Key::R: {
+        case sf::Keyboard::Key::X: {
           m_world.reset();
           for (auto& colony : m_world.getColonies()) {
             for (int i = 0; i < m_nAnts; ++i) colony.spawn();
@@ -89,6 +89,11 @@ void App::event() {
             std::cout << "Ants hunting timeout: " << m_world.getHuntingTimeout()
                       << '\n';
           }
+          // Increase randomness
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
+            m_world.setRandomness(std::min(m_world.getRandomness() + 0.1f, 1.0f));
+            std::cout << "Ants randomness: " << m_world.getRandomness() << '\n';
+          }
         } break;
           // Down key
         case sf::Keyboard::Key::Down: {
@@ -105,6 +110,11 @@ void App::event() {
                 std::max(0.0f, m_world.getHuntingTimeout() - 5.0f));
             std::cout << "Ants hunting timeout: " << m_world.getHuntingTimeout()
                      << '\n';
+          }
+          // Decrease randomness
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
+            m_world.setRandomness(std::max(m_world.getRandomness() - 0.1f, 0.f));
+            std::cout << "Ants randomness: " << m_world.getRandomness() << '\n';
           }
         } break;
         default:;

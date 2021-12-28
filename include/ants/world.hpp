@@ -21,7 +21,8 @@ class World {
   sf::Vector2u m_worldSize;
   GUI::ThemeManager &m_themeManager;
   float m_markersLifetime = 100.0f;
-  float m_huntingTimeout = 50.0f;
+  float m_huntingTimeout = 100.0f;
+  float m_randomness = 0.1f;
 
   std::array<Heatmap<COLS, ROWS>, 2> m_heatMaps;
 
@@ -33,7 +34,7 @@ class World {
                    Heatmap<COLS, ROWS>{worldSize}} {
     m_colonies.emplace_back(sf::Vector2f{150.f, 300.f}, 200);
 
-    int amount = 200;
+    int amount = 10'000;
     for (auto& colony : m_colonies)
       addSourceToHeatmap(colony.getAnthill(), m_heatMaps.at(toBase), amount);
     for (auto& food : m_foodSources)
@@ -52,6 +53,8 @@ class World {
   void setMarkersLifetime(float lifeTime) { m_markersLifetime = lifeTime; }
   [[nodiscard]] float getHuntingTimeout() const { return m_huntingTimeout; }
   void setHuntingTimeout(float timeout) { m_huntingTimeout = timeout; }
+  void setRandomness(float rnd);
+  [[nodiscard]] float getRandomness() const;
   void updateColonies(float elapsedTime);
   void updateMarkers(float elapsedTime);
   void addFoodSource(const FoodSource& foodSource);
@@ -88,7 +91,7 @@ template <size_t COLS, size_t ROWS>
 void World<COLS, ROWS>::addFoodSource(const FoodSource& foodSource) {
   m_foodSources.emplace_back(foodSource);
   m_foodSources.back().setFillColor(m_themeManager.foodColor());
-  addSourceToHeatmap(foodSource, m_heatMaps.at(toFood), foodSource.getAmount());
+  addSourceToHeatmap(foodSource, m_heatMaps.at(toFood), foodSource.getAmount() * 100);
 }
 
 template <size_t COLS, size_t ROWS>
@@ -101,13 +104,18 @@ void World<COLS, ROWS>::reset() {
   m_heatMaps.at(toBase).clear();
 }
 
-inline sf::Vector2f randomDirection() {
-  std::random_device r;
-  std::default_random_engine e1(r());
-  std::uniform_real_distribution<float> uniform_dist(-0.2, 0.2);
-  float r1 = uniform_dist(e1);
-  float r2 = uniform_dist(e1);
-  return {r1, r2};
+template <size_t COLS, size_t ROWS>
+void World<COLS, ROWS>::setRandomness(float rnd) {
+  m_randomness = rnd;
+  for (auto &colony : m_colonies) {
+    for (auto &ant : colony.m_ants)
+      ant.setRandomness(rnd);
+  }
+}
+
+template <size_t COLS, size_t ROWS>
+float World<COLS, ROWS>::getRandomness() const {
+  return m_randomness;
 }
 
 template <size_t COLS, size_t ROWS>
@@ -122,6 +130,8 @@ template <size_t COLS, size_t ROWS>
 inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
                                          float elapsedTime) {
   ant.tickHuntingTimer(elapsedTime);
+  // This function returns if the ant is out of screen
+  checkBounds(ant);
 
   AntState currentState = ant.getState();
   switch (currentState) {
@@ -159,8 +169,7 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
     return;
   }
 
-  // This function returns if the ant is out of screen
-  checkBounds(ant);
+  if (m_huntingTimeout <= 0) return;
 
   // Still check we are within screen view
   if (ant.getPosition().x < 1 ||
@@ -277,7 +286,6 @@ inline void World<COLS, ROWS>::updateAnt(Colony& colony, Ant& ant,
     // Smooth down the steering velocity
     ant.setDirection(sf::lerp(currentDirection, newDirection, 0.3f));
   }
-  ant.setDirection(ant.getDirection() + randomDirection());
 }
 
 template <size_t COLS, size_t ROWS>
@@ -301,8 +309,8 @@ inline void World<COLS, ROWS>::checkBounds(Ant& ant) const {
   auto x = ant.getPosition().x;
   auto y = ant.getPosition().y;
 
-  float turnFactor = 0.05;
-  float margin = 25.f;
+  float turnFactor = 0.2;
+  float margin = 0.f;
   auto currentDirection = ant.getDirection();
 
   if (x <= margin) {

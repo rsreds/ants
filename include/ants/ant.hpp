@@ -19,6 +19,7 @@ class Ant : public sf::Drawable, public sf::Transformable {
   HeatmapIndex m_currentMapIndex{0, 0};
   float m_huntingTimeout = 100;
   float m_remainingTimeToHunt = m_huntingTimeout;
+  float m_randomness = 0.1;
 
  public:
   explicit Ant(sf::Vector2f pos);
@@ -29,11 +30,13 @@ class Ant : public sf::Drawable, public sf::Transformable {
   HeatmapIndex getCurrentHeatmapIndex() const;
   float getSpeed() const;
   float getRemainingTimeToHunt() const;
+  float getRandomness() const;
   void setDirection(sf::Vector2f const& dir);
   void setDirection(float angle);
   void setDirection(Marker const& marker);
   void setSpeed(float const& spd);
   void setState(AntState const& state);
+  void setRandomness(float const rnd);
   void setFillColor(const sf::Color& c);
   void setCurrentMapIndex(const HeatmapIndex &index);
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
